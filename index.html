@@ -444,37 +444,15 @@
     let selectedIds = new Set();
     let editingId = null;
 
+    // Helper: Sort fleet array A-Z by name
     function sortFleetDataAZ() {
       fleetData.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
     }
 
-    function saveFleetToLocalStorage() {
-      try {
-        localStorage.setItem('flexihire_fleet_cache', JSON.stringify(fleetData));
-      } catch(e) { console.warn('LocalStorage unavailable.'); }
-    }
-
+    // Always fetch directly from fleet.json (bypassing browser cache & local storage)
     async function loadFleetData() {
-      const cached = localStorage.getItem('flexihire_fleet_cache');
-      
-      if (cached) {
-        try {
-          fleetData = JSON.parse(cached);
-          sortFleetDataAZ();
-          selectedIds = new Set(fleetData.map(m => m.id));
-          initSidebar();
-          renderCards();
-          return;
-        } catch(e) {
-          console.warn("Corrupted cache, falling back to fleet.json");
-        }
-      }
-
-      await fetchExternalFleetJson();
-    }
-
-    async function fetchExternalFleetJson() {
       try {
+        // Appending a timestamp query param forces the browser & service workers to fetch the fresh file from disk
         const nocacheUrl = 'fleet.json?nocache=' + new Date().getTime();
         const response = await fetch(nocacheUrl, {
           cache: 'no-store',
@@ -483,13 +461,17 @@
 
         if (response.ok) {
           fleetData = await response.json();
+        } else {
+          console.error('Failed to load fleet.json');
         }
       } catch (err) {
-        console.warn('Could not load fleet.json automatically.');
+        console.warn('Could not load fleet.json automatically.', err);
       }
 
+      // Clear any old local storage cache if it exists from previous builds
+      localStorage.removeItem('flexihire_fleet_cache');
+
       sortFleetDataAZ();
-      saveFleetToLocalStorage();
       selectedIds = new Set(fleetData.map(m => m.id));
       initSidebar();
       renderCards();
@@ -524,7 +506,6 @@
     function initSidebar() {
       const container = document.getElementById('checkbox-container');
       
-      // Define category buckets
       const categories = [
         { key: 'Scissor Lift', label: 'Scissor Lifts' },
         { key: 'Boomlift EWP', label: 'Boom Lifts' },
@@ -666,7 +647,6 @@
       }
 
       sortFleetDataAZ();
-      saveFleetToLocalStorage();
       selectedIds.add(newId);
       document.getElementById('add-machine-form').reset();
       toggleAddPanel();
@@ -676,9 +656,8 @@
 
     function removeMachine(id) {
       if (!adminConfig.isAdmin || !adminConfig.allowRemove) return;
-      if (confirm('Are you sure you want to remove this machine from your list?')) {
+      if (confirm('Are you sure you want to remove this machine from your active session view?')) {
         fleetData = fleetData.filter(m => m.id !== id);
-        saveFleetToLocalStorage();
         selectedIds.delete(id);
         initSidebar();
         renderCards();
@@ -850,11 +829,10 @@
         try {
           fleetData = JSON.parse(e.target.result);
           sortFleetDataAZ();
-          saveFleetToLocalStorage();
           selectedIds = new Set(fleetData.map(m => m.id));
           initSidebar();
           renderCards();
-          alert('Fleet imported successfully.');
+          alert('Fleet imported into temporary session.');
         } catch (err) {
           alert('Invalid fleet JSON file.');
         }
@@ -867,6 +845,7 @@
     });
 
     async function init() {
+      // Clear out active Service Worker caches if any exist
       if ('serviceWorker' in navigator) {
         const registrations = await navigator.serviceWorker.getRegistrations();
         for (let registration of registrations) {
