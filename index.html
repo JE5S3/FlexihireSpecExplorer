@@ -27,7 +27,7 @@
     * { box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-dark);
+      background-color: var(--bg-dark) !important;
       color: var(--text-white);
       margin: 0;
       padding: 24px;
@@ -251,10 +251,10 @@
       font-weight: bold;
     }
 
-    /* Image area background set to white */
+    /* Image area background forced to white */
     .card-img-container {
       height: 190px;
-      background: #ffffff;
+      background-color: #ffffff !important;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -299,7 +299,6 @@
     }
     canvas { width: 100%; height: 180px; background: #0a0a0a; border-radius: 4px; }
 
-    /* Mobile Layout */
     @media (max-width: 768px) {
       body { padding: 12px; }
       .header-main { flex-direction: column; align-items: flex-start; gap: 12px; }
@@ -330,7 +329,7 @@
         <div class="subtitle">Full Fleet: Boom Lifts & Scissor Lifts with Reach Graphs</div>
       </div>
       <div class="top-actions">
-        <button class="btn" onclick="toggleAddPanel()">+ Add New Machine</button>
+        <div id="admin-add-btn-container"></div>
         <button class="btn btn-secondary" onclick="exportFleet()">Export Fleet</button>
         <button class="btn btn-secondary" onclick="document.getElementById('fleet-import').click()">Import Fleet</button>
         <input type="file" id="fleet-import" accept=".json" style="display:none" onchange="importFleet(event)">
@@ -421,9 +420,15 @@
   </div>
 
   <script>
-    // Master Fleet Database
+    let adminConfig = {
+      isAdmin: false,
+      allowEdit: false,
+      allowRemove: false,
+      allowAdd: false
+    };
+
+    // Default Fallback Fleet Data
     let fleetData = [
-      // --- BOOM LIFTS ---
       {
         id: 'z34_genie',
         name: '34ft Genie Z-34/22 IC Boom',
@@ -437,104 +442,6 @@
         upAndOver: 4.6
       },
       {
-        id: 'sj46_skyjack',
-        name: '45ft Skyjack SJ46 AJ Boom',
-        category: 'Boomlift EWP',
-        weight: '6,033 kg',
-        dimensions: '6.50m (L) x 2.29m (W) x 2.06m (H)',
-        image: '',
-        isBoomlift: true,
-        maxHeight: 16.1,
-        maxReach: 7.5,
-        upAndOver: 7.4
-      },
-      {
-        id: 'a46_snorkel',
-        name: '45ft Snorkel A46JRT Boom',
-        category: 'Boomlift EWP',
-        weight: '7,520 kg',
-        dimensions: '5.70m (L) x 2.10m (W) x 2.16m (H)',
-        image: '',
-        isBoomlift: true,
-        maxHeight: 16.3,
-        maxReach: 7.5,
-        upAndOver: 7.5
-      },
-      {
-        id: 'jlg450aj',
-        name: '45ft JLG 450AJ Boom',
-        category: 'Boomlift EWP',
-        weight: '6,495 kg',
-        dimensions: '6.58m (L) x 2.35m (W) x 2.27m (H)',
-        image: '',
-        isBoomlift: true,
-        maxHeight: 15.7,
-        maxReach: 7.5,
-        upAndOver: 7.3
-      },
-      {
-        id: 's65_genie',
-        name: '65ft Genie S-65 Telescopic Boom',
-        category: 'Boomlift EWP',
-        weight: '10,102 kg',
-        dimensions: '9.42m (L) x 2.49m (W) x 2.72m (H)',
-        image: '',
-        isBoomlift: true,
-        maxHeight: 21.8,
-        maxReach: 17.1,
-        upAndOver: 0.0
-      },
-      {
-        id: 's80_genie',
-        name: '80ft Genie S-80 Telescopic Boom',
-        category: 'Boomlift EWP',
-        weight: '16,103 kg',
-        dimensions: '11.13m (L) x 2.49m (W) x 2.80m (H)',
-        image: '',
-        isBoomlift: true,
-        maxHeight: 26.3,
-        maxReach: 21.8,
-        upAndOver: 0.0
-      },
-      {
-        id: 'jlg1250ajp',
-        name: '125ft JLG 1250AJP Boom',
-        category: 'Boomlift EWP',
-        weight: '21,000 kg',
-        dimensions: '11.45m (L) x 2.49m (W) x 3.05m (H)',
-        image: '',
-        isBoomlift: true,
-        maxHeight: 40.3,
-        maxReach: 19.2,
-        upAndOver: 18.4
-      },
-      {
-        id: 'jlg1350sjp',
-        name: '135ft JLG 1350SJP Boom',
-        category: 'Boomlift EWP',
-        weight: '20,300 kg',
-        dimensions: '11.86m (L) x 2.49m (W) x 3.05m (H)',
-        image: '',
-        isBoomlift: true,
-        maxHeight: 43.3,
-        maxReach: 24.3,
-        upAndOver: 0.0
-      },
-      {
-        id: 'sx150_genie',
-        name: '150ft Genie SX-150 Super-Boom',
-        category: 'Boomlift EWP',
-        weight: '22,650 kg',
-        dimensions: '16.18m (L) x 2.49m (W) x 3.05m (H)',
-        image: '',
-        isBoomlift: true,
-        maxHeight: 48.0,
-        maxReach: 21.3,
-        upAndOver: 0.0
-      },
-
-      // --- SCISSOR LIFTS ---
-      {
         id: 'sj3219_skyjack',
         name: '19ft Skyjack SJ3219 Scissor',
         category: 'Scissor Lift',
@@ -543,101 +450,55 @@
         image: '',
         isBoomlift: false,
         maxHeight: 5.8
-      },
-      {
-        id: 's3219e_snorkel',
-        name: '19ft Snorkel S3219E Scissor',
-        category: 'Scissor Lift',
-        weight: '1,450 kg',
-        dimensions: '1.78m (L) x 0.81m (W) x 2.11m (H)',
-        image: '',
-        isBoomlift: false,
-        maxHeight: 5.8
-      },
-      {
-        id: 'gs1932_genie',
-        name: '19ft Genie GS-1932 Scissor',
-        category: 'Scissor Lift',
-        weight: '1,503 kg',
-        dimensions: '1.83m (L) x 0.81m (W) x 2.11m (H)',
-        image: '',
-        isBoomlift: false,
-        maxHeight: 5.8
-      },
-      {
-        id: 'sj3226_skyjack',
-        name: '26ft Skyjack SJ3226 Scissor',
-        category: 'Scissor Lift',
-        weight: '1,890 kg',
-        dimensions: '2.32m (L) x 0.81m (W) x 2.15m (H)',
-        image: '',
-        isBoomlift: false,
-        maxHeight: 7.9
-      },
-      {
-        id: 's4726e_snorkel',
-        name: '26ft Snorkel Narrow Deck Scissor',
-        category: 'Scissor Lift',
-        weight: '2,250 kg',
-        dimensions: '2.30m (L) x 0.84m (W) x 2.18m (H)',
-        image: '',
-        isBoomlift: false,
-        maxHeight: 7.9
-      },
-      {
-        id: 's2770rt_snorkel',
-        name: '27ft Snorkel RT Scissor',
-        category: 'Scissor Lift',
-        weight: '2,800 kg',
-        dimensions: '3.30m (L) x 1.80m (W) x 2.56m (H)',
-        image: '',
-        isBoomlift: false,
-        maxHeight: 8.2
-      },
-      {
-        id: 's3970rt_narrow_snorkel',
-        name: '27ft Snorkel Narrow RT Scissor',
-        category: 'Scissor Lift',
-        weight: '2,980 kg',
-        dimensions: '3.30m (L) x 1.45m (W) x 2.50m (H)',
-        image: '',
-        isBoomlift: false,
-        maxHeight: 8.2
-      },
-      {
-        id: 's3370rt_snorkel',
-        name: '33ft Snorkel RT Scissor',
-        category: 'Scissor Lift',
-        weight: '3,620 kg',
-        dimensions: '3.30m (L) x 1.80m (W) x 2.70m (H)',
-        image: '',
-        isBoomlift: false,
-        maxHeight: 10.1
-      },
-      {
-        id: 's3970rt_snorkel',
-        name: '39ft Snorkel RT Scissor',
-        category: 'Scissor Lift',
-        weight: '3,790 kg',
-        dimensions: '3.30m (L) x 1.80m (W) x 2.95m (H)',
-        image: '',
-        isBoomlift: false,
-        maxHeight: 11.9
-      },
-      {
-        id: 'gs4390_genie',
-        name: '43ft Genie GS-4390 RT Scissor',
-        category: 'Scissor Lift',
-        weight: '5,898 kg',
-        dimensions: '3.94m (L) x 2.29m (W) x 2.93m (H)',
-        image: '',
-        isBoomlift: false,
-        maxHeight: 13.1
       }
     ];
 
-    let selectedIds = new Set(fleetData.map(m => m.id));
+    let selectedIds = new Set();
     let editingId = null;
+
+    // Load fleet.json automatically on startup with cache-busting
+    async function loadFleetJson() {
+      try {
+        const response = await fetch('fleet.json?t=' + Date.now(), { cache: 'no-store' });
+        if (response.ok) {
+          fleetData = await response.json();
+        }
+      } catch (err) {
+        console.warn('fleet.json not found directly next to index.html. Using internal fallback data.');
+      }
+      
+      // Default Sort A-Z on start
+      sortFleetDataAZ();
+      selectedIds = new Set(fleetData.map(m => m.id));
+      initSidebar();
+      renderCards();
+    }
+
+    function sortFleetDataAZ() {
+      fleetData.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    async function loadAdminConfig() {
+      try {
+        const res = await fetch('admin-config.json?t=' + Date.now(), { cache: 'no-store' });
+        if (res.ok) {
+          adminConfig = await res.json();
+        }
+      } catch (err) {
+        console.warn('admin-config.json not found. Standard view active.');
+      }
+      applyAdminPermissions();
+    }
+
+    function applyAdminPermissions() {
+      const addContainer = document.getElementById('admin-add-btn-container');
+      if (adminConfig.isAdmin && adminConfig.allowAdd) {
+        addContainer.innerHTML = `<button class="btn" onclick="toggleAddPanel()">+ Add New Machine</button>`;
+      } else {
+        addContainer.innerHTML = '';
+      }
+      renderCards();
+    }
 
     function initSidebar() {
       const container = document.getElementById('checkbox-container');
@@ -665,6 +526,7 @@
     }
 
     function toggleAddPanel() {
+      if (!adminConfig.isAdmin || !adminConfig.allowAdd) return;
       const panel = document.getElementById('add-panel');
       const isVisible = panel.style.display === 'block';
       panel.style.display = isVisible ? 'none' : 'block';
@@ -681,6 +543,7 @@
     }
 
     function editMachine(id) {
+      if (!adminConfig.isAdmin || !adminConfig.allowEdit) return;
       const m = fleetData.find(x => x.id === id);
       if (!m) return;
       editingId = id;
@@ -700,6 +563,8 @@
 
     function handleAddMachine(e) {
       e.preventDefault();
+      if (!adminConfig.isAdmin) return;
+      
       const category = document.getElementById('new-category').value;
       const isBoom = (category === 'Boomlift EWP');
       const newId = editingId || ('m_' + Date.now());
@@ -725,6 +590,7 @@
         fleetData.push(newMachine);
       }
 
+      sortFleetDataAZ();
       selectedIds.add(newId);
       document.getElementById('add-machine-form').reset();
       toggleAddPanel();
@@ -733,6 +599,7 @@
     }
 
     function removeMachine(id) {
+      if (!adminConfig.isAdmin || !adminConfig.allowRemove) return;
       if (confirm('Are you sure you want to remove this machine from your list?')) {
         fleetData = fleetData.filter(m => m.id !== id);
         selectedIds.delete(id);
@@ -758,45 +625,59 @@
         return;
       }
 
-      grid.innerHTML = activeData.map(m => `
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <span class="badge" style="margin-right:6px;">${m.category}</span>
-              <span style="font-weight: bold; font-size: 14px;">${m.name}</span>
-            </div>
-            <div style="display:flex; gap:6px;">
-              <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="editMachine('${m.id}')">✎ Edit</button>
-              <button class="btn-danger" onclick="removeMachine('${m.id}')" title="Remove machine">✕ Remove</button>
-            </div>
-          </div>
-          <div class="card-img-container">
-            <img src="${m.image || `images/${m.id}.jpg`}" alt="${m.name}" class="card-img" onerror="this.style.display='none'">
-          </div>
-          <div class="card-body">
-            <div class="spec-row">
-              <span class="spec-label">Operating Weight:</span>
-              <span class="spec-val">${m.weight}</span>
-            </div>
-            <div class="spec-row">
-              <span class="spec-label">Dimensions (L x W x H):</span>
-              <span class="spec-val">${m.dimensions}</span>
-            </div>
+      const cacheBust = '?v=' + Date.now();
 
-            ${m.isBoomlift ? `
-              <div class="reach-container">
-                <div class="reach-title">📐 Reach Envelope Diagram</div>
-                <div class="spec-row"><span class="spec-label">Max Height:</span><span class="spec-val">${m.maxHeight}m</span></div>
-                <div class="spec-row"><span class="spec-label">Max Reach:</span><span class="spec-val">${m.maxReach}m</span></div>
-                <div class="spec-row"><span class="spec-label">Up & Over Clearance:</span><span class="spec-val">${m.upAndOver}m</span></div>
-                <canvas id="canvas-${m.id}"></canvas>
+      grid.innerHTML = activeData.map(m => {
+        let actionButtonsHtml = '';
+        if (adminConfig.isAdmin) {
+          if (adminConfig.allowEdit) {
+            actionButtonsHtml += `<button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="editMachine('${m.id}')">✎ Edit</button>`;
+          }
+          if (adminConfig.allowRemove) {
+            actionButtonsHtml += `<button class="btn-danger" onclick="removeMachine('${m.id}')" title="Remove machine">✕ Remove</button>`;
+          }
+        }
+
+        const imgPath = (m.image || `images/${m.id}.jpg`) + cacheBust;
+
+        return `
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <span class="badge" style="margin-right:6px;">${m.category}</span>
+                <span style="font-weight: bold; font-size: 14px;">${m.name}</span>
               </div>
-            ` : ''}
-          </div>
-        </div>
-      `).join('');
+              <div style="display:flex; gap:6px;">
+                ${actionButtonsHtml}
+              </div>
+            </div>
+            <div class="card-img-container">
+              <img src="${imgPath}" alt="${m.name}" class="card-img" onerror="this.style.display='none'">
+            </div>
+            <div class="card-body">
+              <div class="spec-row">
+                <span class="spec-label">Operating Weight:</span>
+                <span class="spec-val">${m.weight}</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Dimensions (L x W x H):</span>
+                <span class="spec-val">${m.dimensions}</span>
+              </div>
 
-      // Draw Graphs
+              ${m.isBoomlift ? `
+                <div class="reach-container">
+                  <div class="reach-title">📐 Reach Envelope Diagram</div>
+                  <div class="spec-row"><span class="spec-label">Max Height:</span><span class="spec-val">${m.maxHeight}m</span></div>
+                  <div class="spec-row"><span class="spec-label">Max Reach:</span><span class="spec-val">${m.maxReach}m</span></div>
+                  <div class="spec-row"><span class="spec-label">Up & Over Clearance:</span><span class="spec-val">${m.upAndOver}m</span></div>
+                  <canvas id="canvas-${m.id}"></canvas>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
       activeData.filter(m => m.isBoomlift).forEach(drawReachGraph);
     }
 
@@ -819,13 +700,11 @@
       const maxH = Math.ceil(machine.maxHeight || 20);
       const maxR = Math.ceil(machine.maxReach || 12);
 
-      // Grid Lines & Integers
       ctx.strokeStyle = '#282828';
       ctx.lineWidth = 1;
       ctx.fillStyle = '#ffffff';
       ctx.font = '10px sans-serif';
 
-      // X Axis (Reach Ticks)
       const stepX = Math.max(2, Math.floor(maxR / 5));
       ctx.textAlign = 'center';
       for (let r = 0; r <= maxR; r += stepX) {
@@ -837,7 +716,6 @@
         ctx.fillText(`${r}m`, x, originY + 16);
       }
 
-      // Y Axis (Height Ticks)
       const stepY = Math.max(2, Math.floor(maxH / 5));
       ctx.textAlign = 'right';
       for (let ht = 0; ht <= maxH; ht += stepY) {
@@ -849,7 +727,6 @@
         ctx.fillText(`${ht}m`, originX - 6, y + 3);
       }
 
-      // Main Axis lines
       ctx.strokeStyle = '#f4b000';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
@@ -858,7 +735,6 @@
       ctx.lineTo(w - 10, originY);
       ctx.stroke();
 
-      // Reach Envelope Curve
       const scaleX = graphW / maxR;
       const scaleY = graphH / maxH;
 
@@ -882,7 +758,7 @@
     }
 
     function sortFleet() {
-      fleetData.sort((a, b) => a.name.localeCompare(b.name));
+      sortFleetDataAZ();
       initSidebar();
       renderCards();
     }
@@ -904,6 +780,7 @@
       reader.onload = function(e) {
         try {
           fleetData = JSON.parse(e.target.result);
+          sortFleetDataAZ();
           selectedIds = new Set(fleetData.map(m => m.id));
           initSidebar();
           renderCards();
@@ -915,14 +792,17 @@
       reader.readAsText(file);
     }
 
-    // Redraw graphs on window resize
     window.addEventListener('resize', () => {
       fleetData.filter(m => m.isBoomlift && selectedIds.has(m.id)).forEach(drawReachGraph);
     });
 
-    // Initialize Page
-    initSidebar();
-    renderCards();
+    // Initialize App
+    async function init() {
+      await loadFleetJson();
+      await loadAdminConfig();
+    }
+
+    init();
   </script>
 </body>
 </html>
