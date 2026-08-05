@@ -263,6 +263,28 @@
       border-radius: 4px;
       display: block;
     }
+    /* Default Desktop Styles */
+.logo-top-center {
+  display: flex;
+  justify-content: center;
+}
+
+/* Mobile-Specific Styles (Triggered when screen width is under 768px) */
+@media (max-width: 768px) {
+  .header {
+    align-items: center; /* Center everything on mobile */
+    text-align: center;
+  }
+  
+  .header-text {
+    align-items: center;
+    text-align: center;
+  }
+  
+  .main-layout {
+    grid-template-columns: 1fr; /* Stack sidebar on top of grid on mobile */
+  }
+}
   </style>
 </head>
 <body>
