@@ -251,7 +251,7 @@
       font-weight: bold;
     }
 
-    /* Image area background forced to white */
+    /* Force image container white background */
     .card-img-container {
       height: 190px;
       background-color: #ffffff !important;
@@ -310,14 +310,6 @@
       .card { width: 100%; }
     }
   </style>
-
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js")
-        .then(() => console.log("PWA Ready"))
-        .catch(err => console.log(err));
-    }
-  </script>
 </head>
 <body>
 
@@ -332,6 +324,7 @@
         <div id="admin-add-btn-container"></div>
         <button class="btn btn-secondary" onclick="exportFleet()">Export Fleet</button>
         <button class="btn btn-secondary" onclick="document.getElementById('fleet-import').click()">Import Fleet</button>
+        <button class="btn btn-secondary" onclick="resetToExternalJson()">Reload fleet.json</button>
         <input type="file" id="fleet-import" accept=".json" style="display:none" onchange="importFleet(event)">
       </div>
     </div>
@@ -427,60 +420,77 @@
       allowAdd: false
     };
 
-    // Default Fallback Fleet Data
-    let fleetData = [
-      {
-        id: 'z34_genie',
-        name: '34ft Genie Z-34/22 IC Boom',
-        category: 'Boomlift EWP',
-        weight: '4,944 kg',
-        dimensions: '5.64m (L) x 1.73m (W) x 2.00m (H)',
-        image: '',
-        isBoomlift: true,
-        maxHeight: 12.5,
-        maxReach: 6.8,
-        upAndOver: 4.6
-      },
-      {
-        id: 'sj3219_skyjack',
-        name: '19ft Skyjack SJ3219 Scissor',
-        category: 'Scissor Lift',
-        weight: '1,312 kg',
-        dimensions: '1.78m (L) x 0.81m (W) x 2.11m (H)',
-        image: '',
-        isBoomlift: false,
-        maxHeight: 5.8
-      }
-    ];
-
+    let fleetData = [];
     let selectedIds = new Set();
     let editingId = null;
 
-    // Load fleet.json automatically on startup with cache-busting
-    async function loadFleetJson() {
+    // Helper: Sort fleet array A-Z by name
+    function sortFleetDataAZ() {
+      fleetData.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+    }
+
+    // Helper: Save current state to local storage to persist across normal refreshes (F5)
+    function saveFleetToLocalStorage() {
       try {
-        const response = await fetch('fleet.json?t=' + Date.now(), { cache: 'no-store' });
+        localStorage.setItem('flexihire_fleet_cache', JSON.stringify(fleetData));
+      } catch(e) { console.warn('LocalStorage unavailable.'); }
+    }
+
+    // Load Fleet with cache busting and local storage persistence
+    async function loadFleetData() {
+      const cached = localStorage.getItem('flexihire_fleet_cache');
+      
+      if (cached) {
+        try {
+          fleetData = JSON.parse(cached);
+          sortFleetDataAZ();
+          selectedIds = new Set(fleetData.map(m => m.id));
+          initSidebar();
+          renderCards();
+          return;
+        } catch(e) {
+          console.warn("Corrupted cache, falling back to fleet.json");
+        }
+      }
+
+      await fetchExternalFleetJson();
+    }
+
+    async function fetchExternalFleetJson() {
+      try {
+        // Force browser & SW bypass with random query param + no-cache headers
+        const nocacheUrl = 'fleet.json?nocache=' + new Date().getTime();
+        const response = await fetch(nocacheUrl, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+        });
+
         if (response.ok) {
           fleetData = await response.json();
         }
       } catch (err) {
-        console.warn('fleet.json not found directly next to index.html. Using internal fallback data.');
+        console.warn('Could not load fleet.json automatically.');
       }
-      
-      // Default Sort A-Z on start
+
       sortFleetDataAZ();
+      saveFleetToLocalStorage();
       selectedIds = new Set(fleetData.map(m => m.id));
       initSidebar();
       renderCards();
     }
 
-    function sortFleetDataAZ() {
-      fleetData.sort((a, b) => a.name.localeCompare(b.name));
+    function resetToExternalJson() {
+      localStorage.removeItem('flexihire_fleet_cache');
+      fetchExternalFleetJson();
     }
 
     async function loadAdminConfig() {
       try {
-        const res = await fetch('admin-config.json?t=' + Date.now(), { cache: 'no-store' });
+        const nocacheUrl = 'admin-config.json?nocache=' + new Date().getTime();
+        const res = await fetch(nocacheUrl, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+        });
         if (res.ok) {
           adminConfig = await res.json();
         }
@@ -591,6 +601,7 @@
       }
 
       sortFleetDataAZ();
+      saveFleetToLocalStorage();
       selectedIds.add(newId);
       document.getElementById('add-machine-form').reset();
       toggleAddPanel();
@@ -602,6 +613,7 @@
       if (!adminConfig.isAdmin || !adminConfig.allowRemove) return;
       if (confirm('Are you sure you want to remove this machine from your list?')) {
         fleetData = fleetData.filter(m => m.id !== id);
+        saveFleetToLocalStorage();
         selectedIds.delete(id);
         initSidebar();
         renderCards();
@@ -625,8 +637,6 @@
         return;
       }
 
-      const cacheBust = '?v=' + Date.now();
-
       grid.innerHTML = activeData.map(m => {
         let actionButtonsHtml = '';
         if (adminConfig.isAdmin) {
@@ -638,7 +648,7 @@
           }
         }
 
-        const imgPath = (m.image || `images/${m.id}.jpg`) + cacheBust;
+        const imgPath = m.image || `images/${m.id}.jpg`;
 
         return `
           <div class="card">
@@ -759,6 +769,7 @@
 
     function sortFleet() {
       sortFleetDataAZ();
+      saveFleetToLocalStorage();
       initSidebar();
       renderCards();
     }
@@ -781,6 +792,7 @@
         try {
           fleetData = JSON.parse(e.target.result);
           sortFleetDataAZ();
+          saveFleetToLocalStorage();
           selectedIds = new Set(fleetData.map(m => m.id));
           initSidebar();
           renderCards();
@@ -796,9 +808,17 @@
       fleetData.filter(m => m.isBoomlift && selectedIds.has(m.id)).forEach(drawReachGraph);
     });
 
-    // Initialize App
+    // App Initialization
     async function init() {
-      await loadFleetJson();
+      // Unregister active service worker if present to stop aggressive caching
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let registration of registrations) {
+          await registration.unregister();
+        }
+      }
+      
+      await loadFleetData();
       await loadAdminConfig();
     }
 
