@@ -26,33 +26,7 @@
       background-color: var(--bg-dark);
       color: var(--text-main);
       display: flex;
-      flex-direction: column;
       height: 100vh;
-      overflow: hidden;
-    }
-
-    /* Centered Header Bar */
-    #header {
-      background-color: var(--sidebar-bg);
-      border-bottom: 1px solid var(--border-color);
-      padding: 12px 16px;
-      text-align: center;
-      flex-shrink: 0;
-      z-index: 10;
-    }
-
-    #header h1 {
-      font-size: 18px;
-      color: var(--primary-orange);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin: 0 auto;
-    }
-
-    /* App Container Layout */
-    .app-container {
-      display: flex;
-      flex: 1;
       overflow: hidden;
     }
 
@@ -67,8 +41,16 @@
     }
 
     .sidebar-header {
-      padding: 12px 16px;
+      padding: 16px;
       border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-header h1 {
+      font-size: 18px;
+      color: var(--primary-orange);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .search-box {
@@ -125,7 +107,7 @@
     /* Main Spec Content Area */
     #content {
       flex: 1;
-      padding: 24px;
+      padding: 32px;
       overflow-y: auto;
     }
 
@@ -145,9 +127,9 @@
     }
 
     .spec-header h2 {
-      font-size: 22px;
+      font-size: 24px;
       color: #fff;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .spec-header .category-badge {
@@ -163,8 +145,8 @@
     .spec-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
     .spec-item {
@@ -182,7 +164,7 @@
     }
 
     .spec-item .value {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 600;
       color: var(--text-main);
     }
@@ -216,56 +198,23 @@
     .placeholder {
       text-align: center;
       color: var(--text-muted);
-      margin-top: 60px;
-      font-size: 15px;
-    }
-
-    /* Mobile Responsive Overrides */
-    @media (max-width: 768px) {
-      body {
-        height: 100vh;
-      }
-      .app-container {
-        flex-direction: column;
-        overflow-y: auto;
-      }
-      #sidebar {
-        width: 100%;
-        max-height: 250px;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-      }
-      #content {
-        padding: 16px;
-        overflow-y: visible;
-      }
-      .spec-card {
-        padding: 16px;
-      }
-      .spec-grid {
-        grid-template-columns: 1fr;
-      }
+      margin-top: 100px;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Reverted Centered Header Bar -->
-  <div id="header">
-    <h1>Flexihire Spec Explorer</h1>
+  <div id="sidebar">
+    <div class="sidebar-header">
+      <h1>Flexihire Spec Explorer</h1>
+      <input type="text" id="searchInput" class="search-box" placeholder="Search fleet..." oninput="renderSidebar()">
+    </div>
+    <div class="machine-list" id="machineList"></div>
   </div>
 
-  <div class="app-container">
-    <div id="sidebar">
-      <div class="sidebar-header">
-        <input type="text" id="searchInput" class="search-box" placeholder="Search fleet..." oninput="renderSidebar()">
-      </div>
-      <div class="machine-list" id="machineList"></div>
-    </div>
-
-    <div id="content">
-      <div id="displayArea" class="placeholder">Select a machine from the sidebar to view specifications.</div>
-    </div>
+  <div id="content">
+    <div id="displayArea" class="placeholder">Select a machine from the sidebar to view specifications.</div>
   </div>
 
   <script>
