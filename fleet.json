@@ -197,18 +197,6 @@
     "image": "",
     "isBoomlift": false
   },
-  {
-    "id": "m_1785896612795",
-    "name": "test",
-    "category": "Boomlift EWP",
-    "weight": "1",
-    "dimensions": "1",
-    "image": "https://via.placeholder.com/300x180/1a1a1a/ff6600?text=Spec+Sheet",
-    "isBoomlift": true,
-    "maxHeight": 1,
-    "maxReach": 1,
-    "upAndOver": 1
-  },
 {
   "id": "sj4632_skyjack",
   "name": "32ft Skyjack SJ4632 Electric Scissor",
