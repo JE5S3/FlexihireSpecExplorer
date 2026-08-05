@@ -8,6 +8,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Flexihire Fleet">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
   <link rel="manifest" href="manifest.json">
   <title>Flexihire Fleet Spec Sheet Explorer</title>
   
@@ -122,7 +124,26 @@
       margin-bottom: 12px;
     }
 
-    .filter-group { margin-bottom: 8px; }
+    .category-header {
+      font-weight: bold;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--primary-orange);
+      margin: 12px 0 6px 0;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .category-header:first-child {
+      margin-top: 0;
+    }
+
+    .filter-group { margin-bottom: 6px; padding-left: 4px; }
     .filter-group label { 
       display: flex; 
       align-items: center; 
@@ -324,7 +345,6 @@
         <div id="admin-add-btn-container"></div>
         <button class="btn btn-secondary" onclick="exportFleet()">Export Fleet</button>
         <button class="btn btn-secondary" onclick="document.getElementById('fleet-import').click()">Import Fleet</button>
-        <button class="btn btn-secondary" onclick="resetToExternalJson()">Reload fleet.json</button>
         <input type="file" id="fleet-import" accept=".json" style="display:none" onchange="importFleet(event)">
       </div>
     </div>
@@ -342,8 +362,9 @@
         <div class="form-group">
           <label>Category</label>
           <select id="new-category" onchange="toggleBoomFields()">
-            <option value="Boomlift EWP">Boomlift EWP</option>
             <option value="Scissor Lift">Scissor Lift</option>
+            <option value="Boomlift EWP">Boomlift EWP</option>
+            <option value="Trailer Boom">Trailer Boom</option>
             <option value="Earthmoving">Earthmoving</option>
             <option value="Other">Other</option>
           </select>
@@ -399,10 +420,9 @@
       </div>
 
       <div class="filter-list" id="checkbox-container">
-        <!-- Checkboxes injected here -->
+        <!-- Subsections and Checkboxes injected here -->
       </div>
       <button class="btn" style="width:100%; margin-top: auto;" onclick="selectAll(true)">Select All</button>
-      <button class="btn btn-secondary" style="width:100%; margin-top:6px;" onclick="sortFleet()">Sort A-Z</button>
       <button class="btn btn-secondary" style="width:100%; margin-top:6px;" onclick="selectAll(false)">Clear Selection</button>
     </div>
 
@@ -424,19 +444,16 @@
     let selectedIds = new Set();
     let editingId = null;
 
-    // Helper: Sort fleet array A-Z by name
     function sortFleetDataAZ() {
       fleetData.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
     }
 
-    // Helper: Save current state to local storage to persist across normal refreshes (F5)
     function saveFleetToLocalStorage() {
       try {
         localStorage.setItem('flexihire_fleet_cache', JSON.stringify(fleetData));
       } catch(e) { console.warn('LocalStorage unavailable.'); }
     }
 
-    // Load Fleet with cache busting and local storage persistence
     async function loadFleetData() {
       const cached = localStorage.getItem('flexihire_fleet_cache');
       
@@ -458,7 +475,6 @@
 
     async function fetchExternalFleetJson() {
       try {
-        // Force browser & SW bypass with random query param + no-cache headers
         const nocacheUrl = 'fleet.json?nocache=' + new Date().getTime();
         const response = await fetch(nocacheUrl, {
           cache: 'no-store',
@@ -477,11 +493,6 @@
       selectedIds = new Set(fleetData.map(m => m.id));
       initSidebar();
       renderCards();
-    }
-
-    function resetToExternalJson() {
-      localStorage.removeItem('flexihire_fleet_cache');
-      fetchExternalFleetJson();
     }
 
     async function loadAdminConfig() {
@@ -512,14 +523,68 @@
 
     function initSidebar() {
       const container = document.getElementById('checkbox-container');
-      container.innerHTML = fleetData.map(m => `
-        <div class="filter-group">
-          <label>
-            <input type="checkbox" value="${m.id}" ${selectedIds.has(m.id) ? 'checked' : ''} onchange="toggleSelect('${m.id}')">
-            ${m.name}
-          </label>
-        </div>
-      `).join('');
+      
+      // Define category buckets
+      const categories = [
+        { key: 'Scissor Lift', label: 'Scissor Lifts' },
+        { key: 'Boomlift EWP', label: 'Boom Lifts' },
+        { key: 'Trailer Boom', label: 'Trailer Booms' },
+        { key: 'Other', label: 'Other Fleet' }
+      ];
+
+      let html = '';
+
+      categories.forEach(cat => {
+        const items = fleetData.filter(m => {
+          if (cat.key === 'Other') {
+            return !['Scissor Lift', 'Boomlift EWP', 'Trailer Boom'].includes(m.category);
+          }
+          return m.category === cat.key;
+        });
+
+        if (items.length > 0) {
+          html += `
+            <div class="category-header" onclick="toggleCategoryGroup('${cat.key}')">
+              <span>${cat.label} (${items.length})</span>
+              <span style="font-size:10px; opacity:0.8;">Select Category</span>
+            </div>
+          `;
+          items.forEach(m => {
+            html += `
+              <div class="filter-group">
+                <label>
+                  <input type="checkbox" value="${m.id}" ${selectedIds.has(m.id) ? 'checked' : ''} onchange="toggleSelect('${m.id}')">
+                  ${m.name}
+                </label>
+              </div>
+            `;
+          });
+        }
+      });
+
+      container.innerHTML = html;
+    }
+
+    function toggleCategoryGroup(categoryKey) {
+      const items = fleetData.filter(m => {
+        if (categoryKey === 'Other') {
+          return !['Scissor Lift', 'Boomlift EWP', 'Trailer Boom'].includes(m.category);
+        }
+        return m.category === categoryKey;
+      });
+
+      const allSelected = items.every(m => selectedIds.has(m.id));
+      
+      items.forEach(m => {
+        if (allSelected) {
+          selectedIds.delete(m.id);
+        } else {
+          selectedIds.add(m.id);
+        }
+      });
+
+      initSidebar();
+      renderCards();
     }
 
     function toggleSelect(id) {
@@ -549,7 +614,7 @@
     function toggleBoomFields() {
       const cat = document.getElementById('new-category').value;
       const boomFields = document.getElementById('boom-fields');
-      boomFields.style.display = (cat === 'Boomlift EWP') ? 'block' : 'none';
+      boomFields.style.display = (cat === 'Boomlift EWP' || cat === 'Trailer Boom') ? 'block' : 'none';
     }
 
     function editMachine(id) {
@@ -576,7 +641,7 @@
       if (!adminConfig.isAdmin) return;
       
       const category = document.getElementById('new-category').value;
-      const isBoom = (category === 'Boomlift EWP');
+      const isBoom = (category === 'Boomlift EWP' || category === 'Trailer Boom');
       const newId = editingId || ('m_' + Date.now());
 
       const newMachine = {
@@ -588,8 +653,8 @@
         image: document.getElementById('new-image').value,
         isBoomlift: isBoom,
         maxHeight: parseFloat(document.getElementById('new-height').value) || 0,
-        maxReach: isBoom ? parseFloat(document.getElementById('new-reach').value) || 8 : 0,
-        upAndOver: isBoom ? parseFloat(document.getElementById('new-upover').value) || 6 : 0
+        maxReach: isBoom ? parseFloat(document.getElementById('new-reach').value) || 0 : 0,
+        upAndOver: isBoom ? parseFloat(document.getElementById('new-upover').value) || 0 : 0
       };
 
       if (editingId) {
@@ -767,13 +832,6 @@
       ctx.stroke();
     }
 
-    function sortFleet() {
-      sortFleetDataAZ();
-      saveFleetToLocalStorage();
-      initSidebar();
-      renderCards();
-    }
-
     function exportFleet() {
       const data = JSON.stringify(fleetData, null, 2);
       const blob = new Blob([data], { type: 'application/json' });
@@ -808,9 +866,7 @@
       fleetData.filter(m => m.isBoomlift && selectedIds.has(m.id)).forEach(drawReachGraph);
     });
 
-    // App Initialization
     async function init() {
-      // Unregister active service worker if present to stop aggressive caching
       if ('serviceWorker' in navigator) {
         const registrations = await navigator.serviceWorker.getRegistrations();
         for (let registration of registrations) {
