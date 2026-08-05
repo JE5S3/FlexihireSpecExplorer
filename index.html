@@ -232,30 +232,27 @@
     .spec-label { color: var(--text-muted); }
     .spec-val { font-weight: 600; color: var(--text-white); }
 
-    /* Reach Graph Section */
-    .reach-container {
-      margin-top: 16px;
-      background: #141414;
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-    }
-    .reach-title {
-      font-size: 12px;
-      font-weight: bold;
-      color: var(--primary-orange);
-      margin-bottom: 10px;
-    }
-    canvas { width: 100%; height: 180px; background: #0a0a0a; border-radius: 4px; }
-
-    @media (max-width: 768px) {
-      body { padding: 12px; }
-      .header { flex-direction: column; align-items: flex-start; gap: 8px; }
-      .main-layout { grid-template-columns: 1fr; }
-      .sidebar { max-height: none; }
-      .grid { grid-template-columns: 1fr; }
-      .card { width: 100%; }
-    }
+ /* Responsive High-DPI Canvas Styling */
+.reach-container {
+  margin-top: 16px;
+  background: #141414;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+.reach-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--primary-orange);
+  margin-bottom: 10px;
+}
+canvas {
+  width: 100%;
+  height: 220px;
+  background: #0a0a0a;
+  border-radius: 4px;
+  display: block;
+}
   </style>
 </head>
 <body>
@@ -465,84 +462,137 @@
     }
 
     function drawReachGraph(machine) {
-      const canvas = document.getElementById(`canvas-${machine.id}`);
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const w = canvas.width = canvas.offsetWidth;
-      const h = canvas.height = canvas.offsetHeight;
+  const canvas = document.getElementById(`canvas-${machine.id}`);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
 
-      ctx.clearRect(0, 0, w, h);
+  // Handle High-DPI / Retina Crispness
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 220 * dpr;
+  ctx.scale(dpr, dpr);
 
-      const paddingLeft = 32;
-      const paddingBottom = 26;
-      const graphW = w - paddingLeft - 15;
-      const graphH = h - paddingBottom - 15;
-      const originX = paddingLeft;
-      const originY = h - paddingBottom;
+  const w = rect.width;
+  const h = 220;
 
-      const maxH = Math.ceil(machine.maxHeight || 20);
-      const maxR = Math.ceil(machine.maxReach || 12);
+  ctx.clearRect(0, 0, w, h);
 
-      ctx.strokeStyle = '#282828';
-      ctx.lineWidth = 1;
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '10px sans-serif';
+  // Padding & Grid Scale Calculation
+  const paddingLeft = 35;
+  const paddingBottom = 28;
+  const paddingTop = 15;
+  const paddingRight = 15;
 
-      const stepX = Math.max(2, Math.floor(maxR / 5));
-      ctx.textAlign = 'center';
-      for (let r = 0; r <= maxR; r += stepX) {
-        const x = originX + (r / maxR) * graphW;
-        ctx.beginPath();
-        ctx.moveTo(x, originY);
-        ctx.lineTo(x, 10);
-        ctx.stroke();
-        ctx.fillText(`${r}m`, x, originY + 16);
-      }
+  const graphW = w - paddingLeft - paddingRight;
+  const graphH = h - paddingTop - paddingBottom;
+  const originX = paddingLeft;
+  const originY = h - paddingBottom;
 
-      const stepY = Math.max(2, Math.floor(maxH / 5));
-      ctx.textAlign = 'right';
-      for (let ht = 0; ht <= maxH; ht += stepY) {
-        const y = originY - (ht / maxH) * graphH;
-        ctx.beginPath();
-        ctx.moveTo(originX, y);
-        ctx.lineTo(w - 10, y);
-        ctx.stroke();
-        ctx.fillText(`${ht}m`, originX - 6, y + 3);
-      }
+  const maxH = Math.max(Math.ceil((machine.maxHeight || 20) / 5) * 5, 10);
+  const maxR = Math.max(Math.ceil((machine.maxReach || 12) / 2) * 2, 6);
 
-      ctx.strokeStyle = '#f4b000';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(originX, 10);
-      ctx.lineTo(originX, originY);
-      ctx.lineTo(w - 10, originY);
-      ctx.stroke();
+  const scaleX = graphW / maxR;
+  const scaleY = graphH / maxH;
 
-      const scaleX = graphW / maxR;
-      const scaleY = graphH / maxH;
+  // 1. Draw Grid Lines & Axes Labels
+  ctx.strokeStyle = '#282828';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = '#b0b0b0';
+  ctx.font = '10px -apple-system, sans-serif';
 
-      ctx.fillStyle = 'rgba(244, 176, 0, 0.22)';
-      ctx.strokeStyle = '#f4b000';
-      ctx.lineWidth = 2;
+  // X-Axis (Horizontal Reach - meters)
+  const stepX = maxR > 20 ? 5 : 2;
+  ctx.textAlign = 'center';
+  for (let r = 0; r <= maxR; r += stepX) {
+    const x = originX + r * scaleX;
+    ctx.beginPath();
+    ctx.moveTo(x, originY);
+    ctx.lineTo(x, paddingTop);
+    ctx.stroke();
+    ctx.fillText(`${r}m`, x, originY + 16);
+  }
 
-      ctx.beginPath();
-      ctx.moveTo(originX, originY);
-      ctx.lineTo(originX, originY - (machine.upAndOver * scaleY));
-      ctx.quadraticCurveTo(
-        originX + (machine.maxReach * scaleX), 
-        originY - (machine.maxHeight * scaleY), 
-        originX + (machine.maxReach * scaleX * 0.85), 
-        originY - (machine.maxHeight * scaleY * 0.5)
-      );
-      ctx.lineTo(originX, originY);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-    }
+  // Y-Axis (Vertical Height - meters)
+  const stepY = maxH > 30 ? 10 : 5;
+  ctx.textAlign = 'right';
+  for (let ht = 0; ht <= maxH; ht += stepY) {
+    const y = originY - ht * scaleY;
+    ctx.beginPath();
+    ctx.moveTo(originX, y);
+    ctx.lineTo(w - paddingRight, y);
+    ctx.stroke();
+    ctx.fillText(`${ht}m`, originX - 6, y + 3);
+  }
 
-    window.addEventListener('resize', () => {
-      fleetData.filter(m => m.isBoomlift && selectedIds.has(m.id)).forEach(drawReachGraph);
-    });
+  // Draw Base Axes Boundaries
+  ctx.strokeStyle = '#f4b000';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(originX, paddingTop);
+  ctx.lineTo(originX, originY);
+  ctx.lineTo(w - paddingRight, originY);
+  ctx.stroke();
+
+  // 2. Full Envelope Geometry Construction
+  const H = machine.maxHeight || 0;
+  const R = machine.maxReach || 0;
+  const UO = machine.upAndOver || 0;
+
+  // Key envelope boundary coordinates (m) -> Convert to Canvas Pixels
+  const p0 = { x: originX, y: originY }; // Machine Base / Ground
+  const p1 = { x: originX, y: originY - (UO * scaleY) }; // Up & Over Clearance Point
+  const p2 = { x: originX + (R * 0.45 * scaleX), y: originY - (H * scaleY) }; // Peak Height Apex
+  const p3 = { x: originX + (R * scaleX), y: originY - (H * 0.65 * scaleY) }; // Max Horizon Reach Point
+  const p4 = { x: originX + (R * 0.7 * scaleX), y: originY - (H * 0.15 * scaleY) }; // Low Extension Point
+
+  // Draw Shaded Full Envelope
+  ctx.fillStyle = 'rgba(244, 176, 0, 0.25)';
+  ctx.strokeStyle = '#f4b000';
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.moveTo(p0.x, p0.y);
+  ctx.lineTo(p1.x, p1.y);
+
+  // Smooth curve up to Peak Height
+  ctx.quadraticCurveTo(
+    originX, originY - (H * scaleY),
+    p2.x, p2.y
+  );
+
+  // Smooth curve to Maximum Horizontal Reach
+  ctx.quadraticCurveTo(
+    originX + (R * scaleX), originY - (H * 0.9 * scaleY),
+    p3.x, p3.y
+  );
+
+  // Smooth curve down toward lower ground extension
+  ctx.quadraticCurveTo(
+    originX + (R * scaleX), originY - (H * 0.25 * scaleY),
+    p4.x, p4.y
+  );
+
+  ctx.lineTo(p0.x, p0.y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // 3. Highlight Key Spec Points (Max Height & Max Reach)
+  const drawMarker = (pt, label) => {
+    ctx.fillStyle = '#f4b000';
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 9px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, pt.x + 6, pt.y - 4);
+  };
+
+  drawMarker(p2, `Max H: ${H}m`);
+  drawMarker(p3, `Max R: ${R}m`);
+}
 
     async function init() {
       // Clear out active Service Worker caches if any exist
