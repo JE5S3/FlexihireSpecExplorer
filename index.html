@@ -3,7 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f4b000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Flexihire Fleet">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="manifest" href="manifest.json">
   <title>Flexihire Fleet Spec Sheet Explorer</title>
+  
   <style>
     :root {
       --primary-orange: #f4b000;
@@ -117,6 +124,7 @@
       padding: 4px 8px;
       font-size: 11px;
       border-radius: 4px;
+      cursor: pointer;
     }
     .btn-danger:hover {
       background: var(--danger-red);
@@ -251,71 +259,34 @@
       margin-bottom: 10px;
     }
     canvas { width: 100%; height: 180px; background: #0a0a0a; border-radius: 4px; }
- /* Mobile Layout */
-@media (max-width: 768px) {
 
-  body {
-    padding: 12px;
-  }
+    /* Mobile Layout */
+    @media (max-width: 768px) {
+      body { padding: 12px; }
+      .main-layout { grid-template-columns: 1fr; }
+      .sidebar { max-height: none; }
+      .grid { grid-template-columns: 1fr; }
+      .top-actions { flex-wrap: wrap; }
+      .header { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .top-actions button { width: 100%; }
+      .card { width: 100%; }
+    }
+  </style>
 
-  .main-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    max-height: none;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .top-actions {
-    flex-wrap: wrap;
-  }
-
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .top-actions button {
-    width: 100%;
-  }
-
-  .card {
-    width: 100%;
-  }
-}
-``
- </style>
-<script>
-<link rel="manifest" href="manifest.jsoncontent="#f4b000">
-2
-<meta name="mobile-web-app-capable" content="yes">
-3
-<meta name="apple-mobile-web-app-capable" content="yes">
-4
-<meta name="apple-mobile-web-app-title" content="Flexihire Fleet">
-5
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-6
-<link rel="192.png
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("PWA Ready"))
+        .catch(err => console.log(err));
+    }
+  </script>
 </head>
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js")
-    .then(() => console.log("PWA Ready"))
-    .catch(err => console.log(err));
-}
-</script>
 <body>
 
   <div class="header">
     <div>
       <h1>Flexihire <span>Spec Explorer</span></h1>
-      <div class="subtitle">Full Fleet: 9 Boom Lifts & 11 Scissor Lifts with Reach Graphs</div>
+      <div class="subtitle">Full Fleet: Boom Lifts & Scissor Lifts with Reach Graphs</div>
     </div>
     <div class="top-actions">
       <button class="btn" onclick="toggleAddPanel()">+ Add New Machine</button>
@@ -327,7 +298,7 @@ if ("serviceWorker" in navigator) {
 
   <!-- Add Machine Panel -->
   <div class="add-panel" id="add-panel">
-    <h3>Add Machine Specification Sheet</h3>
+    <h3>Add / Edit Machine Specification Sheet</h3>
     <form id="add-machine-form" onsubmit="handleAddMachine(event)">
       <div class="form-grid">
         <div class="form-group">
@@ -385,12 +356,13 @@ if ("serviceWorker" in navigator) {
   <div class="main-layout">
     <!-- Sidebar Controls -->
     <div class="sidebar">
-      <h2>Filter Fleet (20 Units)</h2>
+      <h2>Filter Fleet</h2>
       <div class="filter-list" id="checkbox-container">
         <!-- Checkboxes injected here -->
       </div>
       <button class="btn" style="width:100%; margin-top: auto;" onclick="selectAll(true)">Select All</button>
-      <button class="btn btn-secondary" style="width:100%; margin-top:6px;" onclick="sortFleet()">Sort A-Z</button><button class="btn btn-secondary" style="width:100%; margin-top:6px;" onclick="selectAll(false)">Clear Selection</button>
+      <button class="btn btn-secondary" style="width:100%; margin-top:6px;" onclick="sortFleet()">Sort A-Z</button>
+      <button class="btn btn-secondary" style="width:100%; margin-top:6px;" onclick="selectAll(false)">Clear Selection</button>
     </div>
 
     <!-- Main Cards Grid -->
@@ -400,9 +372,9 @@ if ("serviceWorker" in navigator) {
   </div>
 
   <script>
-    // Master Fleet Database - Pre-loaded with all requested booms and scissor lifts
+    // Master Fleet Database
     let fleetData = [
-      // --- BOOM LIFTS (9 UNITS) ---
+      // --- BOOM LIFTS ---
       {
         id: 'z34_genie',
         name: '34ft Genie Z-34/22 IC Boom',
@@ -411,7 +383,7 @@ if ("serviceWorker" in navigator) {
         dimensions: '5.64m (L) x 1.73m (W) x 2.00m (H)',
         image: '',
         isBoomlift: true,
-        maxHeight: 12.5, // ~34ft platform + working height
+        maxHeight: 12.5,
         maxReach: 6.8,
         upAndOver: 4.6
       },
@@ -461,7 +433,7 @@ if ("serviceWorker" in navigator) {
         isBoomlift: true,
         maxHeight: 21.8,
         maxReach: 17.1,
-        upAndOver: 0.0 // Straight telescopic
+        upAndOver: 0.0
       },
       {
         id: 's80_genie',
@@ -512,7 +484,7 @@ if ("serviceWorker" in navigator) {
         upAndOver: 0.0
       },
 
-      // --- SCISSOR LIFTS (11 UNITS) ---
+      // --- SCISSOR LIFTS ---
       {
         id: 'sj3219_skyjack',
         name: '19ft Skyjack SJ3219 Scissor',
@@ -606,6 +578,7 @@ if ("serviceWorker" in navigator) {
     ];
 
     let selectedIds = new Set(fleetData.map(m => m.id));
+    let editingId = null;
 
     function initSidebar() {
       const container = document.getElementById('checkbox-container');
@@ -634,7 +607,12 @@ if ("serviceWorker" in navigator) {
 
     function toggleAddPanel() {
       const panel = document.getElementById('add-panel');
-      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+      const isVisible = panel.style.display === 'block';
+      panel.style.display = isVisible ? 'none' : 'block';
+      if (isVisible) {
+        editingId = null;
+        document.getElementById('add-machine-form').reset();
+      }
     }
 
     function toggleBoomFields() {
@@ -643,14 +621,29 @@ if ("serviceWorker" in navigator) {
       boomFields.style.display = (cat === 'Boomlift EWP') ? 'block' : 'none';
     }
 
-    
-let editingId=null;
-function editMachine(id){const m=fleetData.find(x=>x.id===id);if(!m)return;editingId=id;document.getElementById("add-panel").style.display="block";document.getElementById("new-name").value=m.name;document.getElementById("new-category").value=m.category;document.getElementById("new-weight").value=m.weight;document.getElementById("new-dimensions").value=m.dimensions;document.getElementById("new-image").value=m.image||"";if(m.isBoomlift){document.getElementById("new-height").value=m.maxHeight||"";document.getElementById("new-reach").value=m.maxReach||"";document.getElementById("new-upover").value=m.upAndOver||"";}toggleBoomFields();}
-function handleAddMachine(e) {
+    function editMachine(id) {
+      const m = fleetData.find(x => x.id === id);
+      if (!m) return;
+      editingId = id;
+      document.getElementById("add-panel").style.display = "block";
+      document.getElementById("new-name").value = m.name;
+      document.getElementById("new-category").value = m.category;
+      document.getElementById("new-weight").value = m.weight;
+      document.getElementById("new-dimensions").value = m.dimensions;
+      document.getElementById("new-image").value = m.image || "";
+      if (m.isBoomlift) {
+        document.getElementById("new-height").value = m.maxHeight || "";
+        document.getElementById("new-reach").value = m.maxReach || "";
+        document.getElementById("new-upover").value = m.upAndOver || "";
+      }
+      toggleBoomFields();
+    }
+
+    function handleAddMachine(e) {
       e.preventDefault();
       const category = document.getElementById('new-category').value;
       const isBoom = (category === 'Boomlift EWP');
-      const newId = 'm_' + Date.now();
+      const newId = editingId || ('m_' + Date.now());
 
       const newMachine = {
         id: newId,
@@ -658,16 +651,22 @@ function handleAddMachine(e) {
         category: category,
         weight: document.getElementById('new-weight').value,
         dimensions: document.getElementById('new-dimensions').value,
-        image: document.getElementById('new-image').value || 'https://via.placeholder.com/300x180/1a1a1a/ff6600?text=Spec+Sheet',
+        image: document.getElementById('new-image').value,
         isBoomlift: isBoom,
         maxHeight: isBoom ? parseFloat(document.getElementById('new-height').value) || 15 : 0,
         maxReach: isBoom ? parseFloat(document.getElementById('new-reach').value) || 8 : 0,
         upAndOver: isBoom ? parseFloat(document.getElementById('new-upover').value) || 6 : 0
       };
 
-      if(editingId){const i=fleetData.findIndex(m=>m.id===editingId); newMachine.id=editingId; fleetData[i]=newMachine; editingId=null;} else {fleetData.push(newMachine);} 
-      selectedIds.add(newId);
+      if (editingId) {
+        const index = fleetData.findIndex(m => m.id === editingId);
+        fleetData[index] = newMachine;
+        editingId = null;
+      } else {
+        fleetData.push(newMachine);
+      }
 
+      selectedIds.add(newId);
       document.getElementById('add-machine-form').reset();
       toggleAddPanel();
       initSidebar();
@@ -699,7 +698,10 @@ function handleAddMachine(e) {
               <span class="badge" style="margin-right:6px;">${m.category}</span>
               <span style="font-weight: bold; font-size: 14px;">${m.name}</span>
             </div>
-            <div style='display:flex;gap:6px;'><button class='btn btn-secondary' style='padding:4px 8px;font-size:11px;' onclick="editMachine('${m.id}')">✎ Edit</button><button class="btn-danger" onclick="removeMachine('${m.id}')" title="Remove machine">✕ Remove</button></div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="editMachine('${m.id}')">✎ Edit</button>
+              <button class="btn-danger" onclick="removeMachine('${m.id}')" title="Remove machine">✕ Remove</button>
+            </div>
           </div>
           <div class="card-img-container">
             <img src="${m.image || `images/${m.id}.jpg`}" alt="${m.name}" class="card-img" onerror="this.style.display='none'">
@@ -727,7 +729,7 @@ function handleAddMachine(e) {
         </div>
       `).join('');
 
-      // Render graphs
+      // Draw Graphs
       activeData.filter(m => m.isBoomlift).forEach(drawReachGraph);
     }
 
@@ -756,7 +758,7 @@ function handleAddMachine(e) {
       ctx.fillStyle = '#ffffff';
       ctx.font = '10px sans-serif';
 
-      // X Axis (Reach Integer Ticks)
+      // X Axis (Reach Ticks)
       const stepX = Math.max(2, Math.floor(maxR / 5));
       ctx.textAlign = 'center';
       for (let r = 0; r <= maxR; r += stepX) {
@@ -768,7 +770,7 @@ function handleAddMachine(e) {
         ctx.fillText(`${r}m`, x, originY + 16);
       }
 
-      // Y Axis (Height Integer Ticks)
+      // Y Axis (Height Ticks)
       const stepY = Math.max(2, Math.floor(maxH / 5));
       ctx.textAlign = 'right';
       for (let ht = 0; ht <= maxH; ht += stepY) {
@@ -781,7 +783,7 @@ function handleAddMachine(e) {
       }
 
       // Main Axis lines
-      ctx.strokeStyle = '#ff6600';
+      ctx.strokeStyle = '#f4b000';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(originX, 10);
@@ -793,8 +795,8 @@ function handleAddMachine(e) {
       const scaleX = graphW / maxR;
       const scaleY = graphH / maxH;
 
-      ctx.fillStyle = 'rgba(255, 102, 0, 0.22)';
-      ctx.strokeStyle = '#ff6600';
+      ctx.fillStyle = 'rgba(244, 176, 0, 0.22)';
+      ctx.strokeStyle = '#f4b000';
       ctx.lineWidth = 2;
 
       ctx.beginPath();
@@ -812,13 +814,46 @@ function handleAddMachine(e) {
       ctx.stroke();
     }
 
-    function sortFleet(){fleetData.sort((a,b)=>a.name.localeCompare(b.name));initSidebar();renderCards();}
+    function sortFleet() {
+      fleetData.sort((a, b) => a.name.localeCompare(b.name));
+      initSidebar();
+      renderCards();
+    }
 
-function exportFleet(){const data=JSON.stringify(fleetData,null,2);const blob=new Blob([data],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='fleet.json';a.click();URL.revokeObjectURL(a.href);}
+    function exportFleet() {
+      const data = JSON.stringify(fleetData, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'fleet.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
 
-function importFleet(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(e){try{fleetData=JSON.parse(e.target.result);selectedIds=new Set(fleetData.map(m=>m.id));initSidebar();renderCards();alert('Fleet imported successfully.');}catch(err){alert('Invalid fleet JSON file.');}};reader.readAsText(file);}
+    function importFleet(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          fleetData = JSON.parse(e.target.result);
+          selectedIds = new Set(fleetData.map(m => m.id));
+          initSidebar();
+          renderCards();
+          alert('Fleet imported successfully.');
+        } catch (err) {
+          alert('Invalid fleet JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    }
 
-// Initialize
+    // Redraw graphs on window resize
+    window.addEventListener('resize', () => {
+      fleetData.filter(m => m.isBoomlift && selectedIds.has(m.id)).forEach(drawReachGraph);
+    });
+
+    // Initialize Page
     initSidebar();
     renderCards();
   </script>
