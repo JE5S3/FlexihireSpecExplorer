@@ -35,11 +35,26 @@
 
     .header {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
+      text-align: center;
       padding-bottom: 20px;
       border-bottom: 2px solid var(--primary-orange);
       margin-bottom: 24px;
+      gap: 16px;
+    }
+
+    .header-logo {
+      max-height: 48px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .header-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
     }
 
     h1 { margin: 0; font-size: 26px; color: var(--text-white); }
@@ -76,6 +91,29 @@
       border-bottom: 1px solid var(--border-color); 
       padding-bottom: 8px;
       color: var(--primary-orange);
+    }
+
+    .search-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .search-input {
+      background: #1a1a1a;
+      border: 1px solid var(--border-color);
+      color: #ffffff;
+      padding: 8px 10px;
+      border-radius: 4px;
+      outline: none;
+      font-size: 13px;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary-orange);
     }
 
     .filter-list {
@@ -213,9 +251,10 @@
       font-weight: bold;
     }
 
+    /* Image area background set to white */
     .card-img-container {
       height: 190px;
-      background: #0a0a0a;
+      background: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -263,11 +302,11 @@
     /* Mobile Layout */
     @media (max-width: 768px) {
       body { padding: 12px; }
+      .header-main { flex-direction: column; align-items: flex-start; gap: 12px; }
       .main-layout { grid-template-columns: 1fr; }
       .sidebar { max-height: none; }
       .grid { grid-template-columns: 1fr; }
-      .top-actions { flex-wrap: wrap; }
-      .header { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .top-actions { flex-wrap: wrap; width: 100%; }
       .top-actions button { width: 100%; }
       .card { width: 100%; }
     }
@@ -284,15 +323,18 @@
 <body>
 
   <div class="header">
-    <div>
-      <h1>Flexihire <span>Spec Explorer</span></h1>
-      <div class="subtitle">Full Fleet: Boom Lifts & Scissor Lifts with Reach Graphs</div>
-    </div>
-    <div class="top-actions">
-      <button class="btn" onclick="toggleAddPanel()">+ Add New Machine</button>
-      <button class="btn btn-secondary" onclick="exportFleet()">Export Fleet</button>
-      <button class="btn btn-secondary" onclick="document.getElementById('fleet-import').click()">Import Fleet</button>
-      <input type="file" id="fleet-import" accept=".json" style="display:none" onchange="importFleet(event)">
+    <img src="flexihire-logo.jpg" alt="Flexihire Logo" class="header-logo" onerror="this.style.display='none'">
+    <div class="header-main">
+      <div>
+        <h1>Flexihire <span>Spec Explorer</span></h1>
+        <div class="subtitle">Full Fleet: Boom Lifts & Scissor Lifts with Reach Graphs</div>
+      </div>
+      <div class="top-actions">
+        <button class="btn" onclick="toggleAddPanel()">+ Add New Machine</button>
+        <button class="btn btn-secondary" onclick="exportFleet()">Export Fleet</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('fleet-import').click()">Import Fleet</button>
+        <input type="file" id="fleet-import" accept=".json" style="display:none" onchange="importFleet(event)">
+      </div>
     </div>
   </div>
 
@@ -357,6 +399,13 @@
     <!-- Sidebar Controls -->
     <div class="sidebar">
       <h2>Filter Fleet</h2>
+      
+      <!-- Search & Height Filters -->
+      <div class="search-section">
+        <input type="text" id="search-query" class="search-input" placeholder="🔍 Search machine name..." oninput="renderCards()">
+        <input type="number" id="min-height-filter" class="search-input" placeholder="📏 Min Platform Height (m)" step="0.5" oninput="renderCards()">
+      </div>
+
       <div class="filter-list" id="checkbox-container">
         <!-- Checkboxes injected here -->
       </div>
@@ -492,7 +541,8 @@
         weight: '1,312 kg',
         dimensions: '1.78m (L) x 0.81m (W) x 2.11m (H)',
         image: '',
-        isBoomlift: false
+        isBoomlift: false,
+        maxHeight: 5.8
       },
       {
         id: 's3219e_snorkel',
@@ -501,7 +551,8 @@
         weight: '1,450 kg',
         dimensions: '1.78m (L) x 0.81m (W) x 2.11m (H)',
         image: '',
-        isBoomlift: false
+        isBoomlift: false,
+        maxHeight: 5.8
       },
       {
         id: 'gs1932_genie',
@@ -510,7 +561,8 @@
         weight: '1,503 kg',
         dimensions: '1.83m (L) x 0.81m (W) x 2.11m (H)',
         image: '',
-        isBoomlift: false
+        isBoomlift: false,
+        maxHeight: 5.8
       },
       {
         id: 'sj3226_skyjack',
@@ -519,7 +571,8 @@
         weight: '1,890 kg',
         dimensions: '2.32m (L) x 0.81m (W) x 2.15m (H)',
         image: '',
-        isBoomlift: false
+        isBoomlift: false,
+        maxHeight: 7.9
       },
       {
         id: 's4726e_snorkel',
@@ -528,7 +581,8 @@
         weight: '2,250 kg',
         dimensions: '2.30m (L) x 0.84m (W) x 2.18m (H)',
         image: '',
-        isBoomlift: false
+        isBoomlift: false,
+        maxHeight: 7.9
       },
       {
         id: 's2770rt_snorkel',
@@ -537,7 +591,8 @@
         weight: '2,800 kg',
         dimensions: '3.30m (L) x 1.80m (W) x 2.56m (H)',
         image: '',
-        isBoomlift: false
+        isBoomlift: false,
+        maxHeight: 8.2
       },
       {
         id: 's3970rt_narrow_snorkel',
@@ -546,7 +601,8 @@
         weight: '2,980 kg',
         dimensions: '3.30m (L) x 1.45m (W) x 2.50m (H)',
         image: '',
-        isBoomlift: false
+        isBoomlift: false,
+        maxHeight: 8.2
       },
       {
         id: 's3370rt_snorkel',
@@ -555,7 +611,8 @@
         weight: '3,620 kg',
         dimensions: '3.30m (L) x 1.80m (W) x 2.70m (H)',
         image: '',
-        isBoomlift: false
+        isBoomlift: false,
+        maxHeight: 10.1
       },
       {
         id: 's3970rt_snorkel',
@@ -564,7 +621,8 @@
         weight: '3,790 kg',
         dimensions: '3.30m (L) x 1.80m (W) x 2.95m (H)',
         image: '',
-        isBoomlift: false
+        isBoomlift: false,
+        maxHeight: 11.9
       },
       {
         id: 'gs4390_genie',
@@ -573,7 +631,8 @@
         weight: '5,898 kg',
         dimensions: '3.94m (L) x 2.29m (W) x 2.93m (H)',
         image: '',
-        isBoomlift: false
+        isBoomlift: false,
+        maxHeight: 13.1
       }
     ];
 
@@ -653,7 +712,7 @@
         dimensions: document.getElementById('new-dimensions').value,
         image: document.getElementById('new-image').value,
         isBoomlift: isBoom,
-        maxHeight: isBoom ? parseFloat(document.getElementById('new-height').value) || 15 : 0,
+        maxHeight: parseFloat(document.getElementById('new-height').value) || 0,
         maxReach: isBoom ? parseFloat(document.getElementById('new-reach').value) || 8 : 0,
         upAndOver: isBoom ? parseFloat(document.getElementById('new-upover').value) || 6 : 0
       };
@@ -684,10 +743,18 @@
 
     function renderCards() {
       const grid = document.getElementById('machine-grid');
-      const activeData = fleetData.filter(m => selectedIds.has(m.id));
+      const query = document.getElementById('search-query').value.toLowerCase().trim();
+      const minHeight = parseFloat(document.getElementById('min-height-filter').value) || 0;
+
+      const activeData = fleetData.filter(m => {
+        const matchesSelection = selectedIds.has(m.id);
+        const matchesSearch = m.name.toLowerCase().includes(query) || m.category.toLowerCase().includes(query);
+        const matchesHeight = (m.maxHeight || 0) >= minHeight;
+        return matchesSelection && matchesSearch && matchesHeight;
+      });
 
       if (activeData.length === 0) {
-        grid.innerHTML = '<div style="color: var(--text-muted); padding: 40px; text-align: center; grid-column: 1/-1;">No machines selected. Select items from the sidebar or click "+ Add New Machine".</div>';
+        grid.innerHTML = '<div style="color: var(--text-muted); padding: 40px; text-align: center; grid-column: 1/-1;">No machines match your criteria. Select items from the sidebar or adjust your search filters.</div>';
         return;
       }
 
