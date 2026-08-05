@@ -23,7 +23,6 @@
       --text-white: #ffffff;
       --text-muted: #b0b0b0;
       --border-color: #333333;
-      --danger-red: #ef4444;
     }
 
     * { box-sizing: border-box; }
@@ -35,38 +34,30 @@
       padding: 24px;
     }
 
+    /* Streamlined Header & Integrated Logo Alignment */
     .header {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      text-align: center;
-      padding-bottom: 20px;
+      padding-bottom: 16px;
       border-bottom: 2px solid var(--primary-orange);
       margin-bottom: 24px;
       gap: 16px;
     }
 
     .header-logo {
-      max-height: 48px;
+      max-height: 44px;
       width: auto;
       object-fit: contain;
     }
 
-    .header-main {
+    .header-text {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
+      flex-direction: column;
     }
 
-    h1 { margin: 0; font-size: 26px; color: var(--text-white); }
+    h1 { margin: 0; font-size: 24px; color: var(--text-white); }
     h1 span { color: var(--primary-orange); }
-    .subtitle { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
-
-    .top-actions {
-      display: flex;
-      gap: 12px;
-    }
+    .subtitle { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
 
     .main-layout {
       display: grid;
@@ -176,68 +167,6 @@
     }
     .btn-secondary:hover { background: #444444; }
 
-    .btn-danger {
-      background: transparent;
-      color: var(--danger-red);
-      border: 1px solid var(--danger-red);
-      padding: 4px 8px;
-      font-size: 11px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .btn-danger:hover {
-      background: var(--danger-red);
-      color: #ffffff;
-    }
-
-    /* Add Machine Panel Form */
-    .add-panel {
-      background: var(--card-bg);
-      border: 1px solid var(--primary-orange);
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 24px;
-      display: none;
-    }
-
-    .add-panel h3 {
-      margin-top: 0;
-      color: var(--primary-orange);
-      font-size: 18px;
-      margin-bottom: 16px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 14px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .form-group label {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    .form-group input, .form-group select {
-      background: #1a1a1a;
-      border: 1px solid var(--border-color);
-      color: #ffffff;
-      padding: 8px 10px;
-      border-radius: 4px;
-      outline: none;
-    }
-
-    .form-group input:focus, .form-group select:focus {
-      border-color: var(--primary-orange);
-    }
-
     /* Grid Layout */
     .grid {
       display: grid;
@@ -272,7 +201,6 @@
       font-weight: bold;
     }
 
-    /* Force image container white background */
     .card-img-container {
       height: 190px;
       background-color: #ffffff !important;
@@ -322,12 +250,10 @@
 
     @media (max-width: 768px) {
       body { padding: 12px; }
-      .header-main { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .header { flex-direction: column; align-items: flex-start; gap: 8px; }
       .main-layout { grid-template-columns: 1fr; }
       .sidebar { max-height: none; }
       .grid { grid-template-columns: 1fr; }
-      .top-actions { flex-wrap: wrap; width: 100%; }
-      .top-actions button { width: 100%; }
       .card { width: 100%; }
     }
   </style>
@@ -336,76 +262,10 @@
 
   <div class="header">
     <img src="flexihire-logo.jpg" alt="Flexihire Logo" class="header-logo" onerror="this.style.display='none'">
-    <div class="header-main">
-      <div>
-        <h1>Flexihire <span>Spec Explorer</span></h1>
-        <div class="subtitle">Full Fleet: Boom Lifts & Scissor Lifts with Reach Graphs</div>
-      </div>
-      <div class="top-actions">
-        <div id="admin-add-btn-container"></div>
-        <button class="btn btn-secondary" onclick="exportFleet()">Export Fleet</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('fleet-import').click()">Import Fleet</button>
-        <input type="file" id="fleet-import" accept=".json" style="display:none" onchange="importFleet(event)">
-      </div>
+    <div class="header-text">
+      <h1>Flexihire <span>Spec Explorer</span></h1>
+      <div class="subtitle">Full Fleet: Boom Lifts & Scissor Lifts with Reach Graphs</div>
     </div>
-  </div>
-
-  <!-- Add Machine Panel -->
-  <div class="add-panel" id="add-panel">
-    <h3>Add / Edit Machine Specification Sheet</h3>
-    <form id="add-machine-form" onsubmit="handleAddMachine(event)">
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Machine Name *</label>
-          <input type="text" id="new-name" placeholder="e.g. Genie Z-34/22 N" required>
-        </div>
-        <div class="form-group">
-          <label>Category</label>
-          <select id="new-category" onchange="toggleBoomFields()">
-            <option value="Scissor Lift">Scissor Lift</option>
-            <option value="Boomlift EWP">Boomlift EWP</option>
-            <option value="Trailer Boom">Trailer Boom</option>
-            <option value="Earthmoving">Earthmoving</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Operating Weight *</label>
-          <input type="text" id="new-weight" placeholder="e.g. 5,216 kg" required>
-        </div>
-        <div class="form-group">
-          <label>Dimensions (L x W x H) *</label>
-          <input type="text" id="new-dimensions" placeholder="e.g. 5.72m x 1.47m x 2.00m" required>
-        </div>
-        <div class="form-group" style="grid-column: span 2;">
-          <label>Local Image Path</label>
-          <input type="text" id="new-image" placeholder="Leave blank to use images/<machine-id>.jpg">
-        </div>
-      </div>
-
-      <!-- Boomlift specific fields -->
-      <div id="boom-fields" style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border-color);">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Max Platform Height (m)</label>
-            <input type="number" id="new-height" step="0.1" placeholder="10.5">
-          </div>
-          <div class="form-group">
-            <label>Max Horizontal Reach (m)</label>
-            <input type="number" id="new-reach" step="0.1" placeholder="6.8">
-          </div>
-          <div class="form-group">
-            <label>Up & Over Clearance (m)</label>
-            <input type="number" id="new-upover" step="0.1" placeholder="4.6">
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top: 16px; display: flex; gap: 10px;">
-        <button type="submit" class="btn">Save Machine</button>
-        <button type="button" class="btn btn-secondary" onclick="toggleAddPanel()">Cancel</button>
-      </div>
-    </form>
   </div>
 
   <div class="main-layout">
@@ -433,16 +293,8 @@
   </div>
 
   <script>
-    let adminConfig = {
-      isAdmin: false,
-      allowEdit: false,
-      allowRemove: false,
-      allowAdd: false
-    };
-
     let fleetData = [];
     let selectedIds = new Set();
-    let editingId = null;
 
     // Helper: Sort fleet array A-Z by name
     function sortFleetDataAZ() {
@@ -452,7 +304,6 @@
     // Always fetch directly from fleet.json (bypassing browser cache & local storage)
     async function loadFleetData() {
       try {
-        // Appending a timestamp query param forces the browser & service workers to fetch the fresh file from disk
         const nocacheUrl = 'fleet.json?nocache=' + new Date().getTime();
         const response = await fetch(nocacheUrl, {
           cache: 'no-store',
@@ -468,38 +319,12 @@
         console.warn('Could not load fleet.json automatically.', err);
       }
 
-      // Clear any old local storage cache if it exists from previous builds
+      // Clear any legacy local storage cache if present
       localStorage.removeItem('flexihire_fleet_cache');
 
       sortFleetDataAZ();
       selectedIds = new Set(fleetData.map(m => m.id));
       initSidebar();
-      renderCards();
-    }
-
-    async function loadAdminConfig() {
-      try {
-        const nocacheUrl = 'admin-config.json?nocache=' + new Date().getTime();
-        const res = await fetch(nocacheUrl, {
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
-        });
-        if (res.ok) {
-          adminConfig = await res.json();
-        }
-      } catch (err) {
-        console.warn('admin-config.json not found. Standard view active.');
-      }
-      applyAdminPermissions();
-    }
-
-    function applyAdminPermissions() {
-      const addContainer = document.getElementById('admin-add-btn-container');
-      if (adminConfig.isAdmin && adminConfig.allowAdd) {
-        addContainer.innerHTML = `<button class="btn" onclick="toggleAddPanel()">+ Add New Machine</button>`;
-      } else {
-        addContainer.innerHTML = '';
-      }
       renderCards();
     }
 
@@ -581,89 +406,6 @@
       renderCards();
     }
 
-    function toggleAddPanel() {
-      if (!adminConfig.isAdmin || !adminConfig.allowAdd) return;
-      const panel = document.getElementById('add-panel');
-      const isVisible = panel.style.display === 'block';
-      panel.style.display = isVisible ? 'none' : 'block';
-      if (isVisible) {
-        editingId = null;
-        document.getElementById('add-machine-form').reset();
-      }
-    }
-
-    function toggleBoomFields() {
-      const cat = document.getElementById('new-category').value;
-      const boomFields = document.getElementById('boom-fields');
-      boomFields.style.display = (cat === 'Boomlift EWP' || cat === 'Trailer Boom') ? 'block' : 'none';
-    }
-
-    function editMachine(id) {
-      if (!adminConfig.isAdmin || !adminConfig.allowEdit) return;
-      const m = fleetData.find(x => x.id === id);
-      if (!m) return;
-      editingId = id;
-      document.getElementById("add-panel").style.display = "block";
-      document.getElementById("new-name").value = m.name;
-      document.getElementById("new-category").value = m.category;
-      document.getElementById("new-weight").value = m.weight;
-      document.getElementById("new-dimensions").value = m.dimensions;
-      document.getElementById("new-image").value = m.image || "";
-      if (m.isBoomlift) {
-        document.getElementById("new-height").value = m.maxHeight || "";
-        document.getElementById("new-reach").value = m.maxReach || "";
-        document.getElementById("new-upover").value = m.upAndOver || "";
-      }
-      toggleBoomFields();
-    }
-
-    function handleAddMachine(e) {
-      e.preventDefault();
-      if (!adminConfig.isAdmin) return;
-      
-      const category = document.getElementById('new-category').value;
-      const isBoom = (category === 'Boomlift EWP' || category === 'Trailer Boom');
-      const newId = editingId || ('m_' + Date.now());
-
-      const newMachine = {
-        id: newId,
-        name: document.getElementById('new-name').value,
-        category: category,
-        weight: document.getElementById('new-weight').value,
-        dimensions: document.getElementById('new-dimensions').value,
-        image: document.getElementById('new-image').value,
-        isBoomlift: isBoom,
-        maxHeight: parseFloat(document.getElementById('new-height').value) || 0,
-        maxReach: isBoom ? parseFloat(document.getElementById('new-reach').value) || 0 : 0,
-        upAndOver: isBoom ? parseFloat(document.getElementById('new-upover').value) || 0 : 0
-      };
-
-      if (editingId) {
-        const index = fleetData.findIndex(m => m.id === editingId);
-        fleetData[index] = newMachine;
-        editingId = null;
-      } else {
-        fleetData.push(newMachine);
-      }
-
-      sortFleetDataAZ();
-      selectedIds.add(newId);
-      document.getElementById('add-machine-form').reset();
-      toggleAddPanel();
-      initSidebar();
-      renderCards();
-    }
-
-    function removeMachine(id) {
-      if (!adminConfig.isAdmin || !adminConfig.allowRemove) return;
-      if (confirm('Are you sure you want to remove this machine from your active session view?')) {
-        fleetData = fleetData.filter(m => m.id !== id);
-        selectedIds.delete(id);
-        initSidebar();
-        renderCards();
-      }
-    }
-
     function renderCards() {
       const grid = document.getElementById('machine-grid');
       const query = document.getElementById('search-query').value.toLowerCase().trim();
@@ -682,16 +424,6 @@
       }
 
       grid.innerHTML = activeData.map(m => {
-        let actionButtonsHtml = '';
-        if (adminConfig.isAdmin) {
-          if (adminConfig.allowEdit) {
-            actionButtonsHtml += `<button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="editMachine('${m.id}')">✎ Edit</button>`;
-          }
-          if (adminConfig.allowRemove) {
-            actionButtonsHtml += `<button class="btn-danger" onclick="removeMachine('${m.id}')" title="Remove machine">✕ Remove</button>`;
-          }
-        }
-
         const imgPath = m.image || `images/${m.id}.jpg`;
 
         return `
@@ -700,9 +432,6 @@
               <div>
                 <span class="badge" style="margin-right:6px;">${m.category}</span>
                 <span style="font-weight: bold; font-size: 14px;">${m.name}</span>
-              </div>
-              <div style="display:flex; gap:6px;">
-                ${actionButtonsHtml}
               </div>
             </div>
             <div class="card-img-container">
@@ -811,35 +540,6 @@
       ctx.stroke();
     }
 
-    function exportFleet() {
-      const data = JSON.stringify(fleetData, null, 2);
-      const blob = new Blob([data], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'fleet.json';
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
-
-    function importFleet(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          fleetData = JSON.parse(e.target.result);
-          sortFleetDataAZ();
-          selectedIds = new Set(fleetData.map(m => m.id));
-          initSidebar();
-          renderCards();
-          alert('Fleet imported into temporary session.');
-        } catch (err) {
-          alert('Invalid fleet JSON file.');
-        }
-      };
-      reader.readAsText(file);
-    }
-
     window.addEventListener('resize', () => {
       fleetData.filter(m => m.isBoomlift && selectedIds.has(m.id)).forEach(drawReachGraph);
     });
@@ -852,9 +552,7 @@
           await registration.unregister();
         }
       }
-      
       await loadFleetData();
-      await loadAdminConfig();
     }
 
     init();
