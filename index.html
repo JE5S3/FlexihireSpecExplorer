@@ -34,31 +34,35 @@
       padding: 24px;
     }
 
-    /* Centered Header & Top-Middle Logo Alignment */
+    /* Header Layout */
     .header {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
       padding-bottom: 16px;
       border-bottom: 2px solid var(--primary-orange);
       margin-bottom: 24px;
-      gap: 12px;
+      gap: 16px;
+    }
+
+    /* Logo Centered at Top Middle */
+    .logo-top-center {
+      display: flex;
+      justify-content: center;
+      width: 100%;
     }
 
     .header-logo {
       max-height: 52px;
       width: auto;
       object-fit: contain;
-      display: block;
-      margin: 0 auto;
     }
 
+    /* Text Left-Aligned Separately */
     .header-text {
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-start;
+      text-align: left;
     }
 
     h1 { margin: 0; font-size: 24px; color: var(--text-white); }
@@ -264,10 +268,12 @@
 <body>
 
   <div class="header">
-    <img src="flexihire-logo.jpg" alt="Flexihire Logo" class="header-logo" onerror="this.style.display='none'">
+    <div class="logo-top-center">
+      <img src="flexihire-logo.jpg" alt="Flexihire Logo" class="header-logo" onerror="this.style.display='none'">
+    </div>
     <div class="header-text">
-      <h1> <span>Spec Explorer</span></h1>
-      <div class="subtitle">Full Fleet: Boom Lifts & Scissor Lifts with Reach Graphs</div>
+      <h1><span>Spec Explorer</span></h1>
+      <div class="subtitle">Including Boom Lift Height & Reach Graphs</div>
     </div>
   </div>
 
