@@ -197,91 +197,165 @@
     "image": "",
     "isBoomlift": false
   },
-{
-  "id": "sj4632_skyjack",
-  "name": "32ft Skyjack SJ4632 Electric Scissor",
-  "category": "Scissor Lift",
-  "weight": "2,302 kg",
-  "dimensions": "2.30m (L) x 1.20m (W) x 2.20m (H)",
-  "image": "",
-  "isBoomlift": false
-},
-{
-  "id": "jlg600aj",
-  "name": "60ft JLG 600AJ Boom",
-  "category": "Boomlift EWP",
-  "weight": "10,455 kg",
-  "dimensions": "8.83m (L) x 2.49m (W) x 2.54m (H)",
-  "image": "",
-  "isBoomlift": true,
-  "maxHeight": 20.5,
-  "maxReach": 12.1,
-  "upAndOver": 8.1
-},
-{
-  "id": "jlg800aj",
-  "name": "80ft JLG 800AJ Boom",
-  "category": "Boomlift EWP",
-  "weight": "15,560 kg",
-  "dimensions": "11.13m (L) x 2.49m (W) x 3.00m (H)",
-  "image": "",
-  "isBoomlift": true,
-  "maxHeight": 26.5,
-  "maxReach": 15.8,
-  "upAndOver": 9.8
-},
-{
-  "id": "s85_genie",
-  "name": "86ft Genie S-85 Straight Boom",
-  "category": "Boomlift EWP",
-  "weight": "17,236 kg",
-  "dimensions": "12.20m (L) x 2.50m (W) x 2.80m (H)",
-  "image": "",
-  "isBoomlift": true,
-  "maxHeight": 27.7,
-  "maxReach": 23.3,
-  "upAndOver": 0
-},
-{
-  "id": "sj4740_skyjack",
-  "name": "40ft Skyjack SJ4740 Electric Scissor",
-  "category": "Scissor Lift",
-  "weight": "2,934 kg",
-  "dimensions": "2.40m (L) x 1.20m (W) x 2.53m (H)",
-  "image": "",
-  "isBoomlift": false
-},
-{
-  "id": "sj6832rt_skyjack",
-  "name": "33ft Skyjack SJ6832 RT Scissor",
-  "category": "Scissor Lift",
-  "weight": "3,475 kg",
-  "dimensions": "2.72m (L) x 1.76m (W) x 2.51m (H)",
-  "image": "",
-  "isBoomlift": false
-},
-{
-  "id": "mhp13at_snorkel",
-  "name": "Snorkel MHP13AT Trailer Boom",
-  "category": "Trailer Mounted Boom",
-  "weight": "1,460 kg",
-  "dimensions": "4.90m (L) x 1.60m (W) x 2.00m (H)",
-  "image": "",
-  "isBoomlift": true,
-  "maxHeight": 12.9,
-  "maxReach": 6.4,
-  "upAndOver": 4.0
-},
-{
-  "id": "mhp1335_snorkel",
-  "name": "Snorkel MHP13/35 Trailer Boom",
-  "category": "Trailer Mounted Boom",
-  "weight": "1,360 kg",
-  "dimensions": "5.99m (L) x 1.58m (W) x 2.05m (H)",
-  "image": "",
-  "isBoomlift": true,
-  "maxHeight": 12.6,
-  "maxReach": 5.6,
-  "upAndOver": 4.0
-}
+  {
+    "id": "sj4632_skyjack",
+    "name": "32ft Skyjack SJ4632 Electric Scissor",
+    "category": "Scissor Lift",
+    "weight": "2,302 kg",
+    "dimensions": "2.30m (L) x 1.20m (W) x 2.20m (H)",
+    "image": "",
+    "isBoomlift": false
+  },
+  {
+    "id": "jlg600aj",
+    "name": "60ft JLG 600AJ Boom",
+    "category": "Boomlift EWP",
+    "weight": "10,455 kg",
+    "dimensions": "8.83m (L) x 2.49m (W) x 2.54m (H)",
+    "image": "",
+    "isBoomlift": true,
+    "maxHeight": 20.5,
+    "maxReach": 12.1,
+    "upAndOver": 8.1
+  },
+  {
+    "id": "jlg800aj",
+    "name": "80ft JLG 800AJ Boom",
+    "category": "Boomlift EWP",
+    "weight": "15,560 kg",
+    "dimensions": "11.13m (L) x 2.49m (W) x 3.00m (H)",
+    "image": "",
+    "isBoomlift": true,
+    "maxHeight": 26.5,
+    "maxReach": 15.8,
+    "upAndOver": 9.8
+  },
+  {
+    "id": "s85_genie",
+    "name": "86ft Genie S-85 Straight Boom",
+    "category": "Boomlift EWP",
+    "weight": "17,236 kg",
+    "dimensions": "12.20m (L) x 2.50m (W) x 2.80m (H)",
+    "image": "",
+    "isBoomlift": true,
+    "maxHeight": 27.7,
+    "maxReach": 23.3,
+    "upAndOver": 0
+  },
+  {
+    "id": "sj4740_skyjack",
+    "name": "40ft Skyjack SJ4740 Electric Scissor",
+    "category": "Scissor Lift",
+    "weight": "2,934 kg",
+    "dimensions": "2.40m (L) x 1.20m (W) x 2.53m (H)",
+    "image": "",
+    "isBoomlift": false
+  },
+  {
+    "id": "sj6832rt_skyjack",
+    "name": "33ft Skyjack SJ6832 RT Scissor",
+    "category": "Scissor Lift",
+    "weight": "3,475 kg",
+    "dimensions": "2.72m (L) x 1.76m (W) x 2.51m (H)",
+    "image": "",
+    "isBoomlift": false
+  },
+  {
+    "id": "mhp13at_snorkel",
+    "name": "Snorkel MHP13AT Trailer Boom",
+    "category": "Trailer Mounted Boom",
+    "weight": "1,460 kg",
+    "dimensions": "4.90m (L) x 1.60m (W) x 2.00m (H)",
+    "image": "",
+    "isBoomlift": true,
+    "maxHeight": 12.9,
+    "maxReach": 6.4,
+    "upAndOver": 4.0
+  },
+  {
+    "id": "mhp1335_snorkel",
+    "name": "Snorkel MHP13/35 Trailer Boom",
+    "category": "Trailer Mounted Boom",
+    "weight": "1,360 kg",
+    "dimensions": "5.99m (L) x 1.58m (W) x 2.05m (H)",
+    "image": "",
+    "isBoomlift": true,
+    "maxHeight": 12.6,
+    "maxReach": 5.6,
+    "upAndOver": 4.0
+  },
+  {
+    "id": "compact8_haulotte",
+    "name": "19ft Haulotte Compact 8 Electric Scissor",
+    "category": "Scissor Lift",
+    "weight": "1,730 kg",
+    "dimensions": "2.49m (L) x 0.81m (W) x 2.00m (H)",
+    "image": "",
+    "isBoomlift": false,
+    "maxHeight": 7.8
+  },
+  {
+    "id": "h12sxe_haulotte",
+    "name": "33ft Haulotte H12SX RT Scissor",
+    "category": "Scissor Lift",
+    "weight": "5,440 kg",
+    "dimensions": "4.18m (L) x 2.25m (W) x 2.59m (H)",
+    "image": "",
+    "isBoomlift": false,
+    "maxHeight": 12.06
+  },
+  {
+    "id": "gs5390_genie",
+    "name": "53ft Genie GS-5390 RT Scissor",
+    "category": "Scissor Lift",
+    "weight": "7,515 kg",
+    "dimensions": "4.88m (L) x 2.29m (W) x 3.15m (H)",
+    "image": "",
+    "isBoomlift": false,
+    "maxHeight": 18.15
+  },
+  {
+    "id": "sj9243rt_skyjack",
+    "name": "43ft Skyjack SJ9243 RT Scissor",
+    "category": "Scissor Lift",
+    "weight": "6,520 kg",
+    "dimensions": "4.47m (L) x 2.34m (W) x 2.97m (H)",
+    "image": "",
+    "isBoomlift": false,
+    "maxHeight": 15.1
+  },
+  {
+    "id": "nl120_nifty",
+    "name": "11m Nifty N120T Trailer Boom",
+    "category": "Trailer Mounted Boom",
+    "weight": "1,400 kg",
+    "dimensions": "4.50m (L) x 1.50m (W) x 1.90m (H)",
+    "image": "",
+    "isBoomlift": true,
+    "maxHeight": 12.2,
+    "maxReach": 6.1,
+    "upAndOver": 4.2
+  },
+  {
+    "id": "gr20_genie",
+    "name": "8m Genie Runabout GR-20 Manlift",
+    "category": "Manlift",
+    "weight": "1,112 kg",
+    "dimensions": "1.35m (L) x 0.80m (W) x 1.98m (H)",
+    "image": "",
+    "isBoomlift": false,
+    "maxHeight": 8.02
+  },
+  {
+    "id": "tl38_snorkel",
+    "name": "15m Snorkel TL38 Trailer Boom",
+    "category": "Trailer Mounted Boom",
+    "weight": "1,580 kg",
+    "dimensions": "5.60m (L) x 1.60m (W) x 2.01m (H)",
+    "image": "",
+    "isBoomlift": true,
+    "maxHeight": 13.5,
+    "maxReach": 6.1,
+    "upAndOver": 4.3
+  }
 ]
