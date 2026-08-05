@@ -3,379 +3,509 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flexihire Spec Explorer</title>
+  <meta name="theme-color" content="#f4b000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Flexihire Fleet">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+  <title>Flexihire Fleet Spec Sheet Explorer</title>
+  
   <style>
     :root {
-      --bg-dark: #0a0a0a;
-      --card-bg: #141414;
-      --sidebar-bg: #111111;
-      --border-color: #282828;
       --primary-orange: #f4b000;
-      --text-main: #f0f0f0;
-      --text-muted: #a0a0a0;
+      --orange-hover: #d89c00;
+      --bg-dark: #121212;
+      --card-bg: #222222;
+      --card-header: #1a1a1a;
+      --text-white: #ffffff;
+      --text-muted: #b0b0b0;
+      --border-color: #333333;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
+    * { box-sizing: border-box; }
     body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* Sidebar Navigation */
-    #sidebar {
-      width: 320px;
-      background-color: var(--sidebar-bg);
-      border-right: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-    }
-
-    .sidebar-header {
-      padding: 16px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .sidebar-header h1 {
-      font-size: 18px;
-      color: var(--primary-orange);
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .search-box {
-      width: 100%;
-      padding: 8px 12px;
-      background: var(--bg-dark);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      color: var(--text-main);
-      font-size: 14px;
-    }
-
-    .search-box:focus {
-      outline: none;
-      border-color: var(--primary-orange);
-    }
-
-    .machine-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px;
-    }
-
-    .category-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--primary-orange);
-      margin: 16px 8px 8px 8px;
-      font-weight: bold;
-    }
-
-    .machine-item {
-      padding: 10px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-bottom: 4px;
-      font-size: 14px;
-      color: var(--text-muted);
-      transition: background 0.15s, color 0.15s;
-    }
-
-    .machine-item:hover {
-      background: rgba(244, 176, 0, 0.1);
-      color: var(--text-main);
-    }
-
-    .machine-item.active {
-      background: var(--primary-orange);
-      color: #000;
-      font-weight: 600;
-    }
-
-    /* Main Spec Content Area */
-    #content {
-      flex: 1;
-      padding: 32px;
-      overflow-y: auto;
-    }
-
-    .spec-card {
-      max-width: 900px;
-      margin: 0 auto;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-dark) !important;
+      color: var(--text-white);
+      margin: 0;
       padding: 24px;
     }
 
-    .spec-header {
-      border-bottom: 1px solid var(--border-color);
+    /* Streamlined Header & Integrated Logo Alignment */
+    .header {
+      display: flex;
+      align-items: center;
       padding-bottom: 16px;
-      margin-bottom: 20px;
-    }
-
-    .spec-header h2 {
-      font-size: 24px;
-      color: #fff;
-      margin-bottom: 4px;
-    }
-
-    .spec-header .category-badge {
-      display: inline-block;
-      background: rgba(244, 176, 0, 0.15);
-      color: var(--primary-orange);
-      font-size: 12px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 600;
-    }
-
-    .spec-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
+      border-bottom: 2px solid var(--primary-orange);
       margin-bottom: 24px;
+      gap: 16px;
     }
 
-    .spec-item {
-      background: var(--bg-dark);
+    .header-logo {
+      max-height: 44px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1 { margin: 0; font-size: 24px; color: var(--text-white); }
+    h1 span { color: var(--primary-orange); }
+    .subtitle { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      gap: 24px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--card-bg);
+      padding: 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      height: fit-content;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar h2 { 
+      font-size: 16px; 
+      margin-top: 0; 
+      margin-bottom: 12px; 
+      border-bottom: 1px solid var(--border-color); 
+      padding-bottom: 8px;
+      color: var(--primary-orange);
+    }
+
+    .search-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .search-input {
+      background: #1a1a1a;
+      border: 1px solid var(--border-color);
+      color: #ffffff;
+      padding: 8px 10px;
+      border-radius: 4px;
+      outline: none;
+      font-size: 13px;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary-orange);
+    }
+
+    .filter-list {
+      overflow-y: auto;
+      padding-right: 6px;
+      margin-bottom: 12px;
+    }
+
+    .category-header {
+      font-weight: bold;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--primary-orange);
+      margin: 12px 0 6px 0;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .category-header:first-child {
+      margin-top: 0;
+    }
+
+    .filter-group { margin-bottom: 6px; padding-left: 4px; }
+    .filter-group label { 
+      display: flex; 
+      align-items: center; 
+      gap: 8px; 
+      cursor: pointer; 
+      font-size: 13px; 
+      color: var(--text-white);
+    }
+
+    /* Buttons */
+    .btn {
+      background: var(--primary-orange);
+      color: #ffffff;
+      font-weight: 600;
+      border: none;
+      padding: 9px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn:hover { background: var(--orange-hover); }
+    
+    .btn-secondary {
+      background: #333333;
+      color: #ffffff;
+    }
+    .btn-secondary:hover { background: #444444; }
+
+    /* Grid Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-header {
+      padding: 12px 16px;
+      background: var(--card-header);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .badge {
+      background: var(--primary-orange);
+      color: #ffffff;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .card-img-container {
+      height: 190px;
+      background-color: #ffffff !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .card-img {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+    }
+
+    .card-body {
+      padding: 16px;
+      flex-grow: 1;
+    }
+
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border-color);
+      font-size: 13px;
+    }
+    .spec-label { color: var(--text-muted); }
+    .spec-val { font-weight: 600; color: var(--text-white); }
+
+    /* Reach Graph Section */
+    .reach-container {
+      margin-top: 16px;
+      background: #141414;
       padding: 12px;
       border-radius: 6px;
       border: 1px solid var(--border-color);
     }
-
-    .spec-item .label {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    .spec-item .value {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    /* Envelope Graph Container & Canvas */
-    .reach-container {
-      margin-top: 16px;
-      background: var(--bg-dark);
-      padding: 16px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-    }
-
     .reach-title {
       font-size: 12px;
       font-weight: bold;
       color: var(--primary-orange);
-      margin-bottom: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      margin-bottom: 10px;
     }
+    canvas { width: 100%; height: 180px; background: #0a0a0a; border-radius: 4px; }
 
-    canvas {
-      width: 100%;
-      height: 240px;
-      background: #050505;
-      border-radius: 4px;
-      display: block;
-    }
-
-    .placeholder {
-      text-align: center;
-      color: var(--text-muted);
-      margin-top: 100px;
-      font-size: 16px;
+    @media (max-width: 768px) {
+      body { padding: 12px; }
+      .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .main-layout { grid-template-columns: 1fr; }
+      .sidebar { max-height: none; }
+      .grid { grid-template-columns: 1fr; }
+      .card { width: 100%; }
     }
   </style>
 </head>
 <body>
 
-  <div id="sidebar">
-    <div class="sidebar-header">
-      <h1>Flexihire Spec Explorer</h1>
-      <input type="text" id="searchInput" class="search-box" placeholder="Search fleet..." oninput="renderSidebar()">
+  <div class="header">
+    <img src="flexihire-logo.jpg" alt="Flexihire Logo" class="header-logo" onerror="this.style.display='none'">
+    <div class="header-text">
+      <h1>Flexihire <span>Spec Explorer</span></h1>
+      <div class="subtitle">Full Fleet: Boom Lifts & Scissor Lifts with Reach Graphs</div>
     </div>
-    <div class="machine-list" id="machineList"></div>
   </div>
 
-  <div id="content">
-    <div id="displayArea" class="placeholder">Select a machine from the sidebar to view specifications.</div>
+  <div class="main-layout">
+    <!-- Sidebar Controls -->
+    <div class="sidebar">
+      <h2>Filter Fleet</h2>
+      
+      <!-- Search & Height Filters -->
+      <div class="search-section">
+        <input type="text" id="search-query" class="search-input" placeholder="🔍 Search machine name..." oninput="renderCards()">
+        <input type="number" id="min-height-filter" class="search-input" placeholder="📏 Min Platform Height (m)" step="0.5" oninput="renderCards()">
+      </div>
+
+      <div class="filter-list" id="checkbox-container">
+        <!-- Subsections and Checkboxes injected here -->
+      </div>
+      <button class="btn" style="width:100%; margin-top: auto;" onclick="selectAll(true)">Select All</button>
+      <button class="btn btn-secondary" style="width:100%; margin-top:6px;" onclick="selectAll(false)">Clear Selection</button>
+    </div>
+
+    <!-- Main Cards Grid -->
+    <div class="grid" id="machine-grid">
+      <!-- Cards injected here -->
+    </div>
   </div>
 
   <script>
-    // Fleet Dataset with added models
-    const fleetData = [
-      { id: "z34_genie", name: "34ft Genie Z-34/22 IC Boom", category: "Boomlift EWP", weight: "4,944 kg", dimensions: "5.64m (L) x 1.73m (W) x 2.00m (H)", isBoomlift: true, maxHeight: 12.5, maxReach: 6.8, upAndOver: 4.6 },
-      { id: "sj46_skyjack", name: "45ft Skyjack SJ46 AJ Boom", category: "Boomlift EWP", weight: "6,033 kg", dimensions: "6.50m (L) x 2.29m (W) x 2.06m (H)", isBoomlift: true, maxHeight: 16.1, maxReach: 7.5, upAndOver: 7.4 },
-      { id: "a46_snorkel", name: "45ft Snorkel A46JRT Boom", category: "Boomlift EWP", weight: "7,520 kg", dimensions: "5.70m (L) x 2.10m (W) x 2.16m (H)", isBoomlift: true, maxHeight: 16.3, maxReach: 7.5, upAndOver: 7.5 },
-      { id: "jlg450aj", name: "45ft JLG 450AJ Boom", category: "Boomlift EWP", weight: "6,495 kg", dimensions: "6.58m (L) x 2.35m (W) x 2.27m (H)", isBoomlift: true, maxHeight: 15.7, maxReach: 7.5, upAndOver: 7.3 },
-      { id: "jlg600aj", name: "60ft JLG 600AJ Boom", category: "Boomlift EWP", weight: "10,455 kg", dimensions: "8.83m (L) x 2.49m (W) x 2.54m (H)", isBoomlift: true, maxHeight: 20.5, maxReach: 12.1, upAndOver: 8.1 },
-      { id: "s65_genie", name: "65ft Genie S-65 Telescopic Boom", category: "Boomlift EWP", weight: "10,102 kg", dimensions: "9.42m (L) x 2.49m (W) x 2.72m (H)", isBoomlift: true, maxHeight: 21.8, maxReach: 17.1, upAndOver: 0 },
-      { id: "s80_genie", name: "80ft Genie S-80 Telescopic Boom", category: "Boomlift EWP", weight: "16,103 kg", dimensions: "11.13m (L) x 2.49m (W) x 2.80m (H)", isBoomlift: true, maxHeight: 26.3, maxReach: 21.8, upAndOver: 0 },
-      { id: "jlg800aj", name: "80ft JLG 800AJ Boom", category: "Boomlift EWP", weight: "15,560 kg", dimensions: "11.13m (L) x 2.49m (W) x 3.00m (H)", isBoomlift: true, maxHeight: 26.5, maxReach: 15.8, upAndOver: 9.8 },
-      { id: "s85_genie", name: "86ft Genie S-85 Straight Boom", category: "Boomlift EWP", weight: "17,236 kg", dimensions: "12.20m (L) x 2.50m (W) x 2.80m (H)", isBoomlift: true, maxHeight: 27.7, maxReach: 23.3, upAndOver: 0 },
-      { id: "jlg1250ajp", name: "125ft JLG 1250AJP Boom", category: "Boomlift EWP", weight: "21,000 kg", dimensions: "11.45m (L) x 2.49m (W) x 3.05m (H)", isBoomlift: true, maxHeight: 40.3, maxReach: 19.2, upAndOver: 18.4 },
-      { id: "jlg1350sjp", name: "135ft JLG 1350SJP Boom", category: "Boomlift EWP", weight: "20,300 kg", dimensions: "11.86m (L) x 2.49m (W) x 3.05m (H)", isBoomlift: true, maxHeight: 43.3, maxReach: 24.3, upAndOver: 0 },
-      { id: "sx150_genie", name: "150ft Genie SX-150 Super-Boom", category: "Boomlift EWP", weight: "22,650 kg", dimensions: "16.18m (L) x 2.49m (W) x 3.05m (H)", isBoomlift: true, maxHeight: 48, maxReach: 21.3, upAndOver: 0 },
-      { id: "compact8_haulotte", name: "19ft Haulotte Compact 8 Electric Scissor", category: "Scissor Lift", weight: "1,730 kg", dimensions: "2.49m (L) x 0.81m (W) x 2.00m (H)", isBoomlift: false, maxHeight: 7.8 },
-      { id: "sj3219_skyjack", name: "19ft Skyjack SJ3219 Scissor", category: "Scissor Lift", weight: "1,312 kg", dimensions: "1.78m (L) x 0.81m (W) x 2.11m (H)", isBoomlift: false },
-      { id: "s3219e_snorkel", name: "19ft Snorkel S3219E Scissor", category: "Scissor Lift", weight: "1,450 kg", dimensions: "1.78m (L) x 0.81m (W) x 2.11m (H)", isBoomlift: false },
-      { id: "gs1932_genie", name: "19ft Genie GS-1932 Scissor", category: "Scissor Lift", weight: "1,503 kg", dimensions: "1.83m (L) x 0.81m (W) x 2.11m (H)", isBoomlift: false },
-      { id: "sj3226_skyjack", name: "26ft Skyjack SJ3226 Scissor", category: "Scissor Lift", weight: "1,890 kg", dimensions: "2.32m (L) x 0.81m (W) x 2.15m (H)", isBoomlift: false },
-      { id: "s4726e_snorkel", name: "26ft Snorkel Narrow Deck Scissor", category: "Scissor Lift", weight: "2,250 kg", dimensions: "2.30m (L) x 0.84m (W) x 2.18m (H)", isBoomlift: false },
-      { id: "s2770rt_snorkel", name: "27ft Snorkel RT Scissor", category: "Scissor Lift", weight: "2,800 kg", dimensions: "3.30m (L) x 1.80m (W) x 2.56m (H)", isBoomlift: false },
-      { id: "s3970rt_narrow_snorkel", name: "27ft Snorkel Narrow RT Scissor", category: "Scissor Lift", weight: "2,980 kg", dimensions: "3.30m (L) x 1.45m (W) x 2.50m (H)", isBoomlift: false },
-      { id: "sj4632_skyjack", name: "32ft Skyjack SJ4632 Electric Scissor", category: "Scissor Lift", weight: "2,302 kg", dimensions: "2.30m (L) x 1.20m (W) x 2.20m (H)", isBoomlift: false },
-      { id: "h12sxe_haulotte", name: "33ft Haulotte H12SX RT Scissor", category: "Scissor Lift", weight: "5,440 kg", dimensions: "4.18m (L) x 2.25m (W) x 2.59m (H)", isBoomlift: false, maxHeight: 12.06 },
-      { id: "sj6832rt_skyjack", name: "33ft Skyjack SJ6832 RT Scissor", category: "Scissor Lift", weight: "3,475 kg", dimensions: "2.72m (L) x 1.76m (W) x 2.51m (H)", isBoomlift: false },
-      { id: "s3370rt_snorkel", name: "33ft Snorkel RT Scissor", category: "Scissor Lift", weight: "3,620 kg", dimensions: "3.30m (L) x 1.80m (W) x 2.70m (H)", isBoomlift: false },
-      { id: "s3970rt_snorkel", name: "39ft Snorkel RT Scissor", category: "Scissor Lift", weight: "3,790 kg", dimensions: "3.30m (L) x 1.80m (W) x 2.95m (H)", isBoomlift: false },
-      { id: "sj4740_skyjack", name: "40ft Skyjack SJ4740 Electric Scissor", category: "Scissor Lift", weight: "2,934 kg", dimensions: "2.40m (L) x 1.20m (W) x 2.53m (H)", isBoomlift: false },
-      { id: "gs4390_genie", name: "43ft Genie GS-4390 RT Scissor", category: "Scissor Lift", weight: "5,898 kg", dimensions: "3.94m (L) x 2.29m (W) x 2.93m (H)", isBoomlift: false },
-      { id: "sj9243rt_skyjack", name: "43ft Skyjack SJ9243 RT Scissor", category: "Scissor Lift", weight: "6,520 kg", dimensions: "4.47m (L) x 2.34m (W) x 2.97m (H)", isBoomlift: false, maxHeight: 15.1 },
-      { id: "gs5390_genie", name: "53ft Genie GS-5390 RT Scissor", category: "Scissor Lift", weight: "7,515 kg", dimensions: "4.88m (L) x 2.29m (W) x 3.15m (H)", isBoomlift: false, maxHeight: 18.15 },
-      { id: "nl120_nifty", name: "11m Nifty N120T Trailer Boom", category: "Trailer Mounted Boom", weight: "1,400 kg", dimensions: "4.50m (L) x 1.50m (W) x 1.90m (H)", isBoomlift: true, maxHeight: 12.2, maxReach: 6.1, upAndOver: 4.2 },
-      { id: "mhp13at_snorkel", name: "Snorkel MHP13AT Trailer Boom", category: "Trailer Mounted Boom", weight: "1,460 kg", dimensions: "4.90m (L) x 1.60m (W) x 2.00m (H)", isBoomlift: true, maxHeight: 12.9, maxReach: 6.4, upAndOver: 4.0 },
-      { id: "mhp1335_snorkel", name: "Snorkel MHP13/35 Trailer Boom", category: "Trailer Mounted Boom", weight: "1,360 kg", dimensions: "5.99m (L) x 1.58m (W) x 2.05m (H)", isBoomlift: true, maxHeight: 12.6, maxReach: 5.6, upAndOver: 4.0 },
-      { id: "tl38_snorkel", name: "15m Snorkel TL38 Trailer Boom", category: "Trailer Mounted Boom", weight: "1,580 kg", dimensions: "5.60m (L) x 1.60m (W) x 2.01m (H)", isBoomlift: true, maxHeight: 13.5, maxReach: 6.1, upAndOver: 4.3 },
-      { id: "gr20_genie", name: "8m Genie Runabout GR-20 Manlift", category: "Manlift", weight: "1,112 kg", dimensions: "1.35m (L) x 0.80m (W) x 1.98m (H)", isBoomlift: false, maxHeight: 8.02 }
-    ];
+    let fleetData = [];
+    let selectedIds = new Set();
 
-    let activeMachineId = null;
+    // Helper: Sort fleet array A-Z by name
+    function sortFleetDataAZ() {
+      fleetData.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+    }
 
-    function renderSidebar() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const listContainer = document.getElementById('machineList');
-      listContainer.innerHTML = '';
+    // Always fetch directly from fleet.json (bypassing browser cache & local storage)
+    async function loadFleetData() {
+      try {
+        const nocacheUrl = 'fleet.json?nocache=' + new Date().getTime();
+        const response = await fetch(nocacheUrl, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+        });
 
-      const categories = [...new Set(fleetData.map(item => item.category))];
+        if (response.ok) {
+          fleetData = await response.json();
+        } else {
+          console.error('Failed to load fleet.json');
+        }
+      } catch (err) {
+        console.warn('Could not load fleet.json automatically.', err);
+      }
 
-      categories.forEach(category => {
-        const items = fleetData
-          .filter(item => item.category === category && item.name.toLowerCase().includes(search))
-          .sort((a, b) => a.name.localeCompare(b.name));
+      // Clear any legacy local storage cache if present
+      localStorage.removeItem('flexihire_fleet_cache');
+
+      sortFleetDataAZ();
+      selectedIds = new Set(fleetData.map(m => m.id));
+      initSidebar();
+      renderCards();
+    }
+
+    function initSidebar() {
+      const container = document.getElementById('checkbox-container');
+      
+      const categories = [
+        { key: 'Scissor Lift', label: 'Scissor Lifts' },
+        { key: 'Boomlift EWP', label: 'Boom Lifts' },
+        { key: 'Trailer Boom', label: 'Trailer Booms' },
+        { key: 'Other', label: 'Other Fleet' }
+      ];
+
+      let html = '';
+
+      categories.forEach(cat => {
+        const items = fleetData.filter(m => {
+          if (cat.key === 'Other') {
+            return !['Scissor Lift', 'Boomlift EWP', 'Trailer Boom'].includes(m.category);
+          }
+          return m.category === cat.key;
+        });
 
         if (items.length > 0) {
-          const catTitle = document.createElement('div');
-          catTitle.className = 'category-title';
-          catTitle.innerText = category;
-          listContainer.appendChild(catTitle);
-
-          items.forEach(item => {
-            const div = document.createElement('div');
-            div.className = `machine-item ${item.id === activeMachineId ? 'active' : ''}`;
-            div.innerText = item.name;
-            div.onclick = () => selectMachine(item.id);
-            listContainer.appendChild(div);
+          html += `
+            <div class="category-header" onclick="toggleCategoryGroup('${cat.key}')">
+              <span>${cat.label} (${items.length})</span>
+              <span style="font-size:10px; opacity:0.8;">Select Category</span>
+            </div>
+          `;
+          items.forEach(m => {
+            html += `
+              <div class="filter-group">
+                <label>
+                  <input type="checkbox" value="${m.id}" ${selectedIds.has(m.id) ? 'checked' : ''} onchange="toggleSelect('${m.id}')">
+                  ${m.name}
+                </label>
+              </div>
+            `;
           });
         }
       });
+
+      container.innerHTML = html;
     }
 
-    function selectMachine(id) {
-      activeMachineId = id;
-      renderSidebar();
-      const machine = fleetData.find(item => item.id === id);
-      if (!machine) return;
+    function toggleCategoryGroup(categoryKey) {
+      const items = fleetData.filter(m => {
+        if (categoryKey === 'Other') {
+          return !['Scissor Lift', 'Boomlift EWP', 'Trailer Boom'].includes(m.category);
+        }
+        return m.category === categoryKey;
+      });
 
-      const displayArea = document.getElementById('displayArea');
-      displayArea.innerHTML = `
-        <div class="spec-card">
-          <div class="spec-header">
-            <h2>${machine.name}</h2>
-            <span class="category-badge">${machine.category}</span>
-          </div>
-          <div class="spec-grid">
-            <div class="spec-item"><div class="label">Operating Weight</div><div class="value">${machine.weight || 'N/A'}</div></div>
-            <div class="spec-item"><div class="label">Dimensions (LxWxH)</div><div class="value">${machine.dimensions || 'N/A'}</div></div>
-            ${machine.maxHeight ? `<div class="spec-item"><div class="label">Max Working Height</div><div class="value">${machine.maxHeight} m</div></div>` : ''}
-            ${machine.maxReach ? `<div class="spec-item"><div class="label">Max Horizontal Reach</div><div class="value">${machine.maxReach} m</div></div>` : ''}
-            ${machine.upAndOver ? `<div class="spec-item"><div class="label">Up & Over Clearance</div><div class="value">${machine.upAndOver} m</div></div>` : ''}
-          </div>
-          ${machine.isBoomlift ? `
-            <div class="reach-container">
-              <div class="reach-title">Full Reach Envelope Boundary Diagram</div>
-              <canvas id="canvas-${machine.id}"></canvas>
-            </div>
-          ` : ''}
-        </div>
-      `;
+      const allSelected = items.every(m => selectedIds.has(m.id));
+      
+      items.forEach(m => {
+        if (allSelected) {
+          selectedIds.delete(m.id);
+        } else {
+          selectedIds.add(m.id);
+        }
+      });
 
-      if (machine.isBoomlift) {
-        requestAnimationFrame(() => drawReachGraph(machine));
+      initSidebar();
+      renderCards();
+    }
+
+    function toggleSelect(id) {
+      if (selectedIds.has(id)) selectedIds.delete(id);
+      else selectedIds.add(id);
+      renderCards();
+    }
+
+    function selectAll(enable) {
+      if (enable) selectedIds = new Set(fleetData.map(m => m.id));
+      else selectedIds.clear();
+      initSidebar();
+      renderCards();
+    }
+
+    function renderCards() {
+      const grid = document.getElementById('machine-grid');
+      const query = document.getElementById('search-query').value.toLowerCase().trim();
+      const minHeight = parseFloat(document.getElementById('min-height-filter').value) || 0;
+
+      const activeData = fleetData.filter(m => {
+        const matchesSelection = selectedIds.has(m.id);
+        const matchesSearch = m.name.toLowerCase().includes(query) || m.category.toLowerCase().includes(query);
+        const matchesHeight = (m.maxHeight || 0) >= minHeight;
+        return matchesSelection && matchesSearch && matchesHeight;
+      });
+
+      if (activeData.length === 0) {
+        grid.innerHTML = '<div style="color: var(--text-muted); padding: 40px; text-align: center; grid-column: 1/-1;">No machines match your criteria. Select items from the sidebar or adjust your search filters.</div>';
+        return;
       }
+
+      grid.innerHTML = activeData.map(m => {
+        const imgPath = m.image || `images/${m.id}.jpg`;
+
+        return `
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <span class="badge" style="margin-right:6px;">${m.category}</span>
+                <span style="font-weight: bold; font-size: 14px;">${m.name}</span>
+              </div>
+            </div>
+            <div class="card-img-container">
+              <img src="${imgPath}" alt="${m.name}" class="card-img" onerror="this.style.display='none'">
+            </div>
+            <div class="card-body">
+              <div class="spec-row">
+                <span class="spec-label">Operating Weight:</span>
+                <span class="spec-val">${m.weight}</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Dimensions (L x W x H):</span>
+                <span class="spec-val">${m.dimensions}</span>
+              </div>
+
+              ${m.isBoomlift ? `
+                <div class="reach-container">
+                  <div class="reach-title">📐 Reach Envelope Diagram</div>
+                  <div class="spec-row"><span class="spec-label">Max Height:</span><span class="spec-val">${m.maxHeight}m</span></div>
+                  <div class="spec-row"><span class="spec-label">Max Reach:</span><span class="spec-val">${m.maxReach}m</span></div>
+                  <div class="spec-row"><span class="spec-label">Up & Over Clearance:</span><span class="spec-val">${m.upAndOver}m</span></div>
+                  <canvas id="canvas-${m.id}"></canvas>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      activeData.filter(m => m.isBoomlift).forEach(drawReachGraph);
     }
 
     function drawReachGraph(machine) {
       const canvas = document.getElementById(`canvas-${machine.id}`);
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = 240 * dpr;
-      ctx.scale(dpr, dpr);
-
-      const w = rect.width;
-      const h = 240;
+      const w = canvas.width = canvas.offsetWidth;
+      const h = canvas.height = canvas.offsetHeight;
 
       ctx.clearRect(0, 0, w, h);
 
-      const paddingLeft = 40;
-      const paddingBottom = 30;
-      const paddingTop = 20;
-      const paddingRight = 20;
-
-      const graphW = w - paddingLeft - paddingRight;
-      const graphH = h - paddingTop - paddingBottom;
+      const paddingLeft = 32;
+      const paddingBottom = 26;
+      const graphW = w - paddingLeft - 15;
+      const graphH = h - paddingBottom - 15;
       const originX = paddingLeft;
       const originY = h - paddingBottom;
 
-      const maxH = Math.max(Math.ceil((machine.maxHeight || 20) / 5) * 5, 10);
-      const maxR = Math.max(Math.ceil((machine.maxReach || 12) / 2) * 2, 6);
-
-      const scaleX = graphW / maxR;
-      const scaleY = graphH / maxH;
+      const maxH = Math.ceil(machine.maxHeight || 20);
+      const maxR = Math.ceil(machine.maxReach || 12);
 
       ctx.strokeStyle = '#282828';
       ctx.lineWidth = 1;
-      ctx.fillStyle = '#a0a0a0';
+      ctx.fillStyle = '#ffffff';
       ctx.font = '10px sans-serif';
 
-      const stepX = maxR > 20 ? 5 : 2;
+      const stepX = Math.max(2, Math.floor(maxR / 5));
       ctx.textAlign = 'center';
       for (let r = 0; r <= maxR; r += stepX) {
-        const x = originX + r * scaleX;
+        const x = originX + (r / maxR) * graphW;
         ctx.beginPath();
         ctx.moveTo(x, originY);
-        ctx.lineTo(x, paddingTop);
+        ctx.lineTo(x, 10);
         ctx.stroke();
         ctx.fillText(`${r}m`, x, originY + 16);
       }
 
-      const stepY = maxH > 30 ? 10 : 5;
+      const stepY = Math.max(2, Math.floor(maxH / 5));
       ctx.textAlign = 'right';
       for (let ht = 0; ht <= maxH; ht += stepY) {
-        const y = originY - ht * scaleY;
+        const y = originY - (ht / maxH) * graphH;
         ctx.beginPath();
         ctx.moveTo(originX, y);
-        ctx.lineTo(w - paddingRight, y);
+        ctx.lineTo(w - 10, y);
         ctx.stroke();
         ctx.fillText(`${ht}m`, originX - 6, y + 3);
       }
@@ -383,74 +513,49 @@
       ctx.strokeStyle = '#f4b000';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(originX, paddingTop);
+      ctx.moveTo(originX, 10);
       ctx.lineTo(originX, originY);
-      ctx.lineTo(w - paddingRight, originY);
+      ctx.lineTo(w - 10, originY);
       ctx.stroke();
 
-      const H = machine.maxHeight || 0;
-      const R = machine.maxReach || 0;
-      const UO = machine.upAndOver || 0;
+      const scaleX = graphW / maxR;
+      const scaleY = graphH / maxH;
 
-      const p0 = { x: originX, y: originY };
-      const p1 = { x: originX, y: originY - (UO * scaleY) };
-      const p2 = { x: originX + (R * 0.45 * scaleX), y: originY - (H * scaleY) };
-      const p3 = { x: originX + (R * scaleX), y: originY - (H * 0.65 * scaleY) };
-      const p4 = { x: originX + (R * 0.7 * scaleX), y: originY - (H * 0.15 * scaleY) };
-
-      ctx.fillStyle = 'rgba(244, 176, 0, 0.25)';
+      ctx.fillStyle = 'rgba(244, 176, 0, 0.22)';
       ctx.strokeStyle = '#f4b000';
       ctx.lineWidth = 2;
 
       ctx.beginPath();
-      ctx.moveTo(p0.x, p0.y);
-      ctx.lineTo(p1.x, p1.y);
-
+      ctx.moveTo(originX, originY);
+      ctx.lineTo(originX, originY - (machine.upAndOver * scaleY));
       ctx.quadraticCurveTo(
-        originX, originY - (H * scaleY),
-        p2.x, p2.y
+        originX + (machine.maxReach * scaleX), 
+        originY - (machine.maxHeight * scaleY), 
+        originX + (machine.maxReach * scaleX * 0.85), 
+        originY - (machine.maxHeight * scaleY * 0.5)
       );
-
-      ctx.quadraticCurveTo(
-        originX + (R * scaleX), originY - (H * 0.9 * scaleY),
-        p3.x, p3.y
-      );
-
-      ctx.quadraticCurveTo(
-        originX + (R * scaleX), originY - (H * 0.25 * scaleY),
-        p4.x, p4.y
-      );
-
-      ctx.lineTo(p0.x, p0.y);
+      ctx.lineTo(originX, originY);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
-
-      const drawMarker = (pt, label) => {
-        ctx.fillStyle = '#f4b000';
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 10px sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText(label, pt.x + 6, pt.y - 4);
-      };
-
-      drawMarker(p2, `Max H: ${H}m`);
-      drawMarker(p3, `Max R: ${R}m`);
     }
 
     window.addEventListener('resize', () => {
-      if (activeMachineId) {
-        const machine = fleetData.find(item => item.id === activeMachineId);
-        if (machine && machine.isBoomlift) {
-          drawReachGraph(machine);
-        }
-      }
+      fleetData.filter(m => m.isBoomlift && selectedIds.has(m.id)).forEach(drawReachGraph);
     });
 
-    renderSidebar();
+    async function init() {
+      // Clear out active Service Worker caches if any exist
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let registration of registrations) {
+          await registration.unregister();
+        }
+      }
+      await loadFleetData();
+    }
+
+    init();
   </script>
 </body>
 </html>
