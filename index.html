@@ -299,7 +299,6 @@
     }
     canvas { width: 100%; height: 180px; background: #0a0a0a; border-radius: 4px; }
 
-    /* Mobile Layout */
     @media (max-width: 768px) {
       body { padding: 12px; }
       .header-main { flex-direction: column; align-items: flex-start; gap: 12px; }
@@ -330,7 +329,8 @@
         <div class="subtitle">Full Fleet: Boom Lifts & Scissor Lifts with Reach Graphs</div>
       </div>
       <div class="top-actions">
-        <button class="btn" onclick="toggleAddPanel()">+ Add New Machine</button>
+        <!-- Rendered dynamically depending on admin status -->
+        <div id="admin-add-btn-container"></div>
         <button class="btn btn-secondary" onclick="exportFleet()">Export Fleet</button>
         <button class="btn btn-secondary" onclick="document.getElementById('fleet-import').click()">Import Fleet</button>
         <input type="file" id="fleet-import" accept=".json" style="display:none" onchange="importFleet(event)">
@@ -421,9 +421,16 @@
   </div>
 
   <script>
+    // Global Admin Permissions State
+    let adminConfig = {
+      isAdmin: false,
+      allowEdit: false,
+      allowRemove: false,
+      allowAdd: false
+    };
+
     // Master Fleet Database
     let fleetData = [
-      // --- BOOM LIFTS ---
       {
         id: 'z34_genie',
         name: '34ft Genie Z-34/22 IC Boom',
@@ -532,8 +539,6 @@
         maxReach: 21.3,
         upAndOver: 0.0
       },
-
-      // --- SCISSOR LIFTS ---
       {
         id: 'sj3219_skyjack',
         name: '19ft Skyjack SJ3219 Scissor',
@@ -639,6 +644,30 @@
     let selectedIds = new Set(fleetData.map(m => m.id));
     let editingId = null;
 
+    // Fetch Admin Config File
+    async function loadAdminConfig() {
+      try {
+        const res = await fetch('admin-config.json');
+        if (res.ok) {
+          adminConfig = await res.parse ? res.json() : await res.json();
+        }
+      } catch (err) {
+        console.warn('admin-config.json not found. Running in standard view mode.');
+      }
+      applyAdminPermissions();
+    }
+
+    function applyAdminPermissions() {
+      // Render Header "Add Machine" Button if permitted
+      const addContainer = document.getElementById('admin-add-btn-container');
+      if (adminConfig.isAdmin && adminConfig.allowAdd) {
+        addContainer.innerHTML = `<button class="btn" onclick="toggleAddPanel()">+ Add New Machine</button>`;
+      } else {
+        addContainer.innerHTML = '';
+      }
+      renderCards();
+    }
+
     function initSidebar() {
       const container = document.getElementById('checkbox-container');
       container.innerHTML = fleetData.map(m => `
@@ -665,6 +694,7 @@
     }
 
     function toggleAddPanel() {
+      if (!adminConfig.isAdmin || !adminConfig.allowAdd) return;
       const panel = document.getElementById('add-panel');
       const isVisible = panel.style.display === 'block';
       panel.style.display = isVisible ? 'none' : 'block';
@@ -681,6 +711,7 @@
     }
 
     function editMachine(id) {
+      if (!adminConfig.isAdmin || !adminConfig.allowEdit) return;
       const m = fleetData.find(x => x.id === id);
       if (!m) return;
       editingId = id;
@@ -700,6 +731,8 @@
 
     function handleAddMachine(e) {
       e.preventDefault();
+      if (!adminConfig.isAdmin) return;
+      
       const category = document.getElementById('new-category').value;
       const isBoom = (category === 'Boomlift EWP');
       const newId = editingId || ('m_' + Date.now());
@@ -733,6 +766,7 @@
     }
 
     function removeMachine(id) {
+      if (!adminConfig.isAdmin || !adminConfig.allowRemove) return;
       if (confirm('Are you sure you want to remove this machine from your list?')) {
         fleetData = fleetData.filter(m => m.id !== id);
         selectedIds.delete(id);
@@ -758,43 +792,55 @@
         return;
       }
 
-      grid.innerHTML = activeData.map(m => `
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <span class="badge" style="margin-right:6px;">${m.category}</span>
-              <span style="font-weight: bold; font-size: 14px;">${m.name}</span>
-            </div>
-            <div style="display:flex; gap:6px;">
-              <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="editMachine('${m.id}')">✎ Edit</button>
-              <button class="btn-danger" onclick="removeMachine('${m.id}')" title="Remove machine">✕ Remove</button>
-            </div>
-          </div>
-          <div class="card-img-container">
-            <img src="${m.image || `images/${m.id}.jpg`}" alt="${m.name}" class="card-img" onerror="this.style.display='none'">
-          </div>
-          <div class="card-body">
-            <div class="spec-row">
-              <span class="spec-label">Operating Weight:</span>
-              <span class="spec-val">${m.weight}</span>
-            </div>
-            <div class="spec-row">
-              <span class="spec-label">Dimensions (L x W x H):</span>
-              <span class="spec-val">${m.dimensions}</span>
-            </div>
+      grid.innerHTML = activeData.map(m => {
+        // Build Action Buttons based on adminConfig
+        let actionButtonsHtml = '';
+        if (adminConfig.isAdmin) {
+          if (adminConfig.allowEdit) {
+            actionButtonsHtml += `<button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="editMachine('${m.id}')">✎ Edit</button>`;
+          }
+          if (adminConfig.allowRemove) {
+            actionButtonsHtml += `<button class="btn-danger" onclick="removeMachine('${m.id}')" title="Remove machine">✕ Remove</button>`;
+          }
+        }
 
-            ${m.isBoomlift ? `
-              <div class="reach-container">
-                <div class="reach-title">📐 Reach Envelope Diagram</div>
-                <div class="spec-row"><span class="spec-label">Max Height:</span><span class="spec-val">${m.maxHeight}m</span></div>
-                <div class="spec-row"><span class="spec-label">Max Reach:</span><span class="spec-val">${m.maxReach}m</span></div>
-                <div class="spec-row"><span class="spec-label">Up & Over Clearance:</span><span class="spec-val">${m.upAndOver}m</span></div>
-                <canvas id="canvas-${m.id}"></canvas>
+        return `
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <span class="badge" style="margin-right:6px;">${m.category}</span>
+                <span style="font-weight: bold; font-size: 14px;">${m.name}</span>
               </div>
-            ` : ''}
+              <div style="display:flex; gap:6px;">
+                ${actionButtonsHtml}
+              </div>
+            </div>
+            <div class="card-img-container">
+              <img src="${m.image || `images/${m.id}.jpg`}" alt="${m.name}" class="card-img" onerror="this.style.display='none'">
+            </div>
+            <div class="card-body">
+              <div class="spec-row">
+                <span class="spec-label">Operating Weight:</span>
+                <span class="spec-val">${m.weight}</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Dimensions (L x W x H):</span>
+                <span class="spec-val">${m.dimensions}</span>
+              </div>
+
+              ${m.isBoomlift ? `
+                <div class="reach-container">
+                  <div class="reach-title">📐 Reach Envelope Diagram</div>
+                  <div class="spec-row"><span class="spec-label">Max Height:</span><span class="spec-val">${m.maxHeight}m</span></div>
+                  <div class="spec-row"><span class="spec-label">Max Reach:</span><span class="spec-val">${m.maxReach}m</span></div>
+                  <div class="spec-row"><span class="spec-label">Up & Over Clearance:</span><span class="spec-val">${m.upAndOver}m</span></div>
+                  <canvas id="canvas-${m.id}"></canvas>
+                </div>
+              ` : ''}
+            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
       // Draw Graphs
       activeData.filter(m => m.isBoomlift).forEach(drawReachGraph);
@@ -825,7 +871,7 @@
       ctx.fillStyle = '#ffffff';
       ctx.font = '10px sans-serif';
 
-      // X Axis (Reach Ticks)
+      // X Axis
       const stepX = Math.max(2, Math.floor(maxR / 5));
       ctx.textAlign = 'center';
       for (let r = 0; r <= maxR; r += stepX) {
@@ -837,7 +883,7 @@
         ctx.fillText(`${r}m`, x, originY + 16);
       }
 
-      // Y Axis (Height Ticks)
+      // Y Axis
       const stepY = Math.max(2, Math.floor(maxH / 5));
       ctx.textAlign = 'right';
       for (let ht = 0; ht <= maxH; ht += stepY) {
@@ -915,14 +961,13 @@
       reader.readAsText(file);
     }
 
-    // Redraw graphs on window resize
     window.addEventListener('resize', () => {
       fleetData.filter(m => m.isBoomlift && selectedIds.has(m.id)).forEach(drawReachGraph);
     });
 
-    // Initialize Page
+    // Initialize Page & Load Admin Config
     initSidebar();
-    renderCards();
+    loadAdminConfig();
   </script>
 </body>
 </html>
